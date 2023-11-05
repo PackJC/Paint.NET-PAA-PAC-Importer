@@ -1,10 +1,4 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: BIS.PAA.Palette
-// Assembly: PAAType, Version=1.2.7656.845, Culture=ru-RU, PublicKeyToken=null
-// MVID: 9564CC68-8D16-446C-9581-EF04FFB56AB6
-// Assembly location: C:\Users\ECHO\Desktop\PAAType.dll
-
-using BIS.Core;
+﻿using BIS.Core;
 using BIS.Core.Streams;
 using System.Diagnostics;
 

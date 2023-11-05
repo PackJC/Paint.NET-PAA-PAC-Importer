@@ -71,7 +71,7 @@
     <Compile Include="BIS\Core\ColorP.cs" />
     <Compile Include="BIS\Core\PackedColor.cs" />
     <Compile Include="BIS\Core\Methods.cs" />
-    <Compile Include="BIS\Core\QuadTree`1.cs" />
+    <Compile Include="BIS\Core\QuadTree.cs" />
     <Compile Include="BIS\Core\Streams\BinaryReaderEx.cs" />
     <Compile Include="BIS\Core\Streams\BinaryWriterEx.cs" />
     <Compile Include="BIS\Core\Math\Matrix3P.cs" />
