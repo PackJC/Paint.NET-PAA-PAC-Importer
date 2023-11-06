@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PaintDotNet.ObjectModel</name>
+    </assembly>
+    <members>
+        <member name="P:PaintDotNet.ObjectModel.DependencyResource.ID">
+            <summary>
+            Gets a unique integer ID for this instance.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.ObjectModel.DependencyResource.Version">
+            <summary>
+            Gets the current version for this instance.
+            </summary>
+            <remarks>
+            This value is incremented every time a property value on this instance changes.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.ObjectModel.FreezableExtensions.EnsureFrozen``1(``0)">
+            <summary>
+            Returns either the object if it's already frozen, the object after freezing it if it
+            can be frozen, or a frozen clone of the object's current values. You should only use
+            this method if you own the given object.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.ObjectModel.FreezableExtensions.ToFrozen``1(``0)">
+            <summary>
+            Returns the object if it's already frozen, or a frozen clone of the object's current
+            values. In all cases, the original object is not modified.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.ObjectModel.IResourceCache.GetCachedOrCreateResource(PaintDotNet.ObjectModel.IResourceProvider,System.Type)">
+            <summary>
+            Gets and updates a resource from the cache, or creates the resource and places it in the cache.
+            This may be used by IResourceProvider.CreateResource() implementations to allow them to optimize
+            the initialization of nested resources.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.ObjectModel.IResourceCache.TryGetCachedResource(PaintDotNet.ObjectModel.IResourceProvider,System.Type)">
+            <summary>
+            Gets and updates a resource from cache. Returns null if the resource is not already cached.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.ObjectModel.IResourceProvider.ResourceID">
+            <summary>
+            Gets an ID that uniquely identifies the resource source within this AppDomain.
+            </summary>
+            <remarks>
+            This must be a value obtained from ResourceID.Generate().
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.ObjectModel.IResourceProvider.ResourceVersion">
+            <summary>
+            Gets a version identifier for this resource. If the resource is immutable or Frozen
+            then this value will never change. Otherwise it should change whenever a property or
+            sub-property changes.
+            </summary>
+            <remarks>
+            A sub-property is a property on a contained resource. For instance, a combined geometry
+            object is a resource comprised of a combine mode and two geometry objects. If the combine
+            mode changes, or if the geometry objects are changed to other geometry objects, that's a
+            property change. If a property on one of the two geometry objects changes, that's a
+            sub-property change. This must be handled recursively; if the geometry objects contain
+            other objects (for instance, a combined geometry could contain two combined geometries,
+            each with their own regular geometries), their property changes must be tracked/reported
+            as well.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.ObjectModel.IResourceProvider.CreateResource(System.IServiceProvider)">
+            <summary>
+            Creates the resource.
+            </summary>
+            <remarks>
+            The services parameter can be used to obtain IDirect2DFactory, IDrawingContext, 
+            and IResourceCache.
+            This method must return a new object ref, either to a brand new resource, or a new
+            object ref from an existing (cached) resource.
+            You may use services.GetService(typeof(IResourceCache)) to get access to the
+            resource cache, and use it to optimize initialization of nested resources.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.ObjectModel.IResourceProvider.CanUpdateResource(PaintDotNet.ComponentModel.IObjectRef,System.Int64)">
+            <summary>
+            Checks whether the resource can be updated with the values from the new version of
+            the resource source.
+            </summary>
+            <remarks>
+            If this returns false, UpdateResource() will throw an exception. Recreating the
+            resource with CreateResource() is necessary.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.ObjectModel.IResourceProvider.UpdateResource(System.IServiceProvider,PaintDotNet.ComponentModel.IObjectRef,System.Int64)">
+            <summary>
+            Updates the resource with the values from the current version of the resource source,
+            if possible.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">if the resource cannot be updated as per CanUpdateResource()</exception>
+        </member>
+        <member name="M:PaintDotNet.ObjectModel.ResourceCacheExtensions.SafeGetCachedOrCreateResource``1(PaintDotNet.ObjectModel.IResourceCache,PaintDotNet.ObjectModel.IResourceProvider{``0})">
+            <summary>
+            The same as using GetCachedOrCreateResource(), except that it doesn't throw an ArgumentNullException is resourceProvider is null. 
+            Instead, it returns null.
+            </summary>
+        </member>
+    </members>
+</doc>

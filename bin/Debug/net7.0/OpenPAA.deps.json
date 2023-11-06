@@ -1,0 +1,949 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v7.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v7.0": {
+      "OpenPAA/1.0.0": {
+        "dependencies": {
+          "System.Drawing.Common": "7.0.0",
+          "PaintDotNet.Data": "5.11.8685.3093",
+          "paintdotnet": "5.11.8685.3093",
+          "PaintDotNet.Effects": "5.11.8685.3093"
+        },
+        "runtime": {
+          "OpenPAA.dll": {}
+        }
+      },
+      "Microsoft.Win32.SystemEvents/7.0.0": {
+        "runtime": {
+          "lib/net7.0/Microsoft.Win32.SystemEvents.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.22.51805"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/net7.0/Microsoft.Win32.SystemEvents.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.22.51805"
+          }
+        }
+      },
+      "System.Drawing.Common/7.0.0": {
+        "dependencies": {
+          "Microsoft.Win32.SystemEvents": "7.0.0"
+        },
+        "runtime": {
+          "lib/net7.0/System.Drawing.Common.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.22.51805"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/net7.0/System.Drawing.Common.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.22.51805"
+          }
+        }
+      },
+      "PaintDotNet.Data/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Data.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "paintdotnet/5.11.8685.3093": {
+        "runtime": {
+          "paintdotnet.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.Effects/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Effects.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "ComputeSharp.D2D1/2.1.0.0": {
+        "runtime": {
+          "ComputeSharp.D2D1.dll": {
+            "assemblyVersion": "2.1.0.0",
+            "fileVersion": "2.1.0.0"
+          }
+        }
+      },
+      "ComputeSharp.Core/2.1.0.0": {
+        "runtime": {
+          "ComputeSharp.Core.dll": {
+            "assemblyVersion": "2.1.0.0",
+            "fileVersion": "2.1.0.0"
+          }
+        }
+      },
+      "WinRT.Runtime/2.0.0.0": {
+        "runtime": {
+          "WinRT.Runtime.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.3.42921"
+          }
+        }
+      },
+      "System.Windows.Forms.Primitives/7.0.0.0": {
+        "runtime": {
+          "System.Windows.Forms.Primitives.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47803"
+          }
+        }
+      },
+      "System.Windows.Forms/7.0.0.0": {
+        "runtime": {
+          "System.Windows.Forms.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47803"
+          }
+        }
+      },
+      "PaintDotNet.Fundamentals/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Fundamentals.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.Windows.Framework/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Windows.Framework.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.Collections/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Collections.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.Base/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Base.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.Core/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Core.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.PropertySystem/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.PropertySystem.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.Primitives/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Primitives.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.Framework/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Framework.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.SystemLayer/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.SystemLayer.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.Systrace/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Systrace.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "Newtonsoft.Json/13.0.0.0": {
+        "runtime": {
+          "Newtonsoft.Json.dll": {
+            "assemblyVersion": "13.0.0.0",
+            "fileVersion": "13.0.3.27908"
+          }
+        }
+      },
+      "PaintDotNet.Windows.Core/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Windows.Core.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.Windows/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Windows.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.ComponentModel/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.ComponentModel.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.UI/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.UI.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.ObjectModel/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.ObjectModel.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "System.Xaml/7.0.0.0": {
+        "runtime": {
+          "System.Xaml.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47802"
+          }
+        }
+      },
+      "TerraFX.Interop.Windows/10.0.22621.2": {
+        "runtime": {
+          "TerraFX.Interop.Windows.dll": {
+            "assemblyVersion": "10.0.22621.2",
+            "fileVersion": "10.0.22621.2"
+          }
+        }
+      },
+      "CommunityToolkit.HighPerformance/8.2.0.0": {
+        "runtime": {
+          "CommunityToolkit.HighPerformance.dll": {
+            "assemblyVersion": "8.2.0.0",
+            "fileVersion": "8.2.1.1"
+          }
+        }
+      },
+      "PaintDotNet.Runtime/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Runtime.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "Mono.Cecil/0.11.5.0": {
+        "runtime": {
+          "Mono.Cecil.dll": {
+            "assemblyVersion": "0.11.5.0",
+            "fileVersion": "0.11.5.0"
+          }
+        }
+      },
+      "System.Reflection.MetadataLoadContext/7.0.0.0": {
+        "runtime": {
+          "System.Reflection.MetadataLoadContext.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.22.51805"
+          }
+        }
+      },
+      "PointerToolkit.TerraFX.Interop.Windows/10.0.22621.2": {
+        "runtime": {
+          "PointerToolkit.TerraFX.Interop.Windows.dll": {
+            "assemblyVersion": "10.0.22621.2",
+            "fileVersion": "10.0.22621.2"
+          }
+        }
+      },
+      "PaintDotNet.Effects.Core/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Effects.Core.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.Resources/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Resources.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "System.IO.Packaging/7.0.0.0": {
+        "runtime": {
+          "System.IO.Packaging.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      },
+      "PointerToolkit/1.0.0.0": {
+        "runtime": {
+          "PointerToolkit.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PhotoSauce.MagicScaler/0.13.2.0": {
+        "runtime": {
+          "PhotoSauce.MagicScaler.dll": {
+            "assemblyVersion": "0.13.2.0",
+            "fileVersion": "0.13.2.0"
+          }
+        }
+      },
+      "Microsoft.Windows.SDK.NET/10.0.17763.24": {
+        "runtime": {
+          "Microsoft.Windows.SDK.NET.dll": {
+            "assemblyVersion": "10.0.17763.24",
+            "fileVersion": "10.0.17763.29"
+          }
+        }
+      },
+      "PaintDotNet.Plugins.Compatibility/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Plugins.Compatibility.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "System.Windows.Forms.Legacy/1.0.0.0": {
+        "runtime": {
+          "System.Windows.Forms.Legacy.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "PaintDotNet.Effects.Gpu/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Effects.Gpu.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "PaintDotNet.Effects.Legacy/5.11.8685.3093": {
+        "runtime": {
+          "PaintDotNet.Effects.Legacy.dll": {
+            "assemblyVersion": "5.11.8685.3093",
+            "fileVersion": "5.11.8685.3093"
+          }
+        }
+      },
+      "System.Windows.Extensions/7.0.0.0": {
+        "runtime": {
+          "System.Windows.Extensions.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      },
+      "K4os.Compression.LZ4/1.2.16.0": {
+        "runtime": {
+          "K4os.Compression.LZ4.dll": {
+            "assemblyVersion": "1.2.16.0",
+            "fileVersion": "1.2.16.0"
+          }
+        }
+      },
+      "System.Private.CoreLib/7.0.0.0": {
+        "runtime": {
+          "System.Private.CoreLib.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      },
+      "Accessibility/4.0.0.0": {
+        "runtime": {
+          "Accessibility.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "7.0.1223.47803"
+          }
+        }
+      },
+      "System.Configuration.ConfigurationManager/7.0.0.0": {
+        "runtime": {
+          "System.Configuration.ConfigurationManager.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      },
+      "PresentationCore/7.0.0.0": {
+        "runtime": {
+          "PresentationCore.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47802"
+          }
+        }
+      },
+      "System.IO.Hashing/7.0.0.0": {
+        "runtime": {
+          "System.IO.Hashing.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.22.51805"
+          }
+        }
+      },
+      "System.CodeDom/7.0.0.0": {
+        "runtime": {
+          "System.CodeDom.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      },
+      "Interop.WIA/1.0.0.0": {
+        "runtime": {
+          "Interop.WIA.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "System.Private.Uri/7.0.0.0": {
+        "runtime": {
+          "System.Private.Uri.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      },
+      "System.Private.Xml/7.0.0.0": {
+        "runtime": {
+          "System.Private.Xml.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      },
+      "System.Private.Xml.Linq/7.0.0.0": {
+        "runtime": {
+          "System.Private.Xml.Linq.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      },
+      "PresentationFramework/7.0.0.0": {
+        "runtime": {
+          "PresentationFramework.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47802"
+          }
+        }
+      },
+      "System.Security.Permissions/7.0.0.0": {
+        "runtime": {
+          "System.Security.Permissions.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      },
+      "System.Diagnostics.EventLog/7.0.0.0": {
+        "runtime": {
+          "System.Diagnostics.EventLog.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      },
+      "System.Security.Cryptography.ProtectedData/7.0.0.0": {
+        "runtime": {
+          "System.Security.Cryptography.ProtectedData.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      },
+      "DirectWriteForwarder/7.0.0.0": {
+        "runtime": {
+          "DirectWriteForwarder.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47802"
+          }
+        }
+      },
+      "UIAutomationTypes/7.0.0.0": {
+        "runtime": {
+          "UIAutomationTypes.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47802"
+          }
+        }
+      },
+      "UIAutomationProvider/7.0.0.0": {
+        "runtime": {
+          "UIAutomationProvider.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47802"
+          }
+        }
+      },
+      "System.Windows.Input.Manipulations/7.0.0.0": {
+        "runtime": {
+          "System.Windows.Input.Manipulations.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47802"
+          }
+        }
+      },
+      "ReachFramework/7.0.0.0": {
+        "runtime": {
+          "ReachFramework.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47802"
+          }
+        }
+      },
+      "System.Printing/7.0.0.0": {
+        "runtime": {
+          "System.Printing.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47802"
+          }
+        }
+      },
+      "PresentationUI/7.0.0.0": {
+        "runtime": {
+          "PresentationUI.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47802"
+          }
+        }
+      },
+      "System.Security.Cryptography.Xml/7.0.0.0": {
+        "runtime": {
+          "System.Security.Cryptography.Xml.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      },
+      "System.DirectoryServices/4.0.0.0": {
+        "runtime": {
+          "System.DirectoryServices.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      },
+      "System.Security.Cryptography.Pkcs/7.0.0.0": {
+        "runtime": {
+          "System.Security.Cryptography.Pkcs.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.1223.47720"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "OpenPAA/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.Win32.SystemEvents/7.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-2nXPrhdAyAzir0gLl8Yy8S5Mnm/uBSQQA7jEsILOS1MTyS7DbmV1NgViMtvV1sfCD1ebITpNwb1NIinKeJgUVQ==",
+      "path": "microsoft.win32.systemevents/7.0.0",
+      "hashPath": "microsoft.win32.systemevents.7.0.0.nupkg.sha512"
+    },
+    "System.Drawing.Common/7.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-KIX+oBU38pxkKPxvLcLfIkOV5Ien8ReN78wro7OF5/erwcmortzeFx+iBswlh2Vz6gVne0khocQudGwaO1Ey6A==",
+      "path": "system.drawing.common/7.0.0",
+      "hashPath": "system.drawing.common.7.0.0.nupkg.sha512"
+    },
+    "PaintDotNet.Data/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "paintdotnet/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Effects/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ComputeSharp.D2D1/2.1.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ComputeSharp.Core/2.1.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "WinRT.Runtime/2.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Windows.Forms.Primitives/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Windows.Forms/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Fundamentals/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Windows.Framework/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Collections/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Base/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Core/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.PropertySystem/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Primitives/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Framework/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.SystemLayer/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Systrace/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Newtonsoft.Json/13.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Windows.Core/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Windows/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.ComponentModel/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.UI/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.ObjectModel/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Xaml/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "TerraFX.Interop.Windows/10.0.22621.2": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "CommunityToolkit.HighPerformance/8.2.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Runtime/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Mono.Cecil/0.11.5.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Reflection.MetadataLoadContext/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PointerToolkit.TerraFX.Interop.Windows/10.0.22621.2": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Effects.Core/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Resources/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.IO.Packaging/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PointerToolkit/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PhotoSauce.MagicScaler/0.13.2.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.Windows.SDK.NET/10.0.17763.24": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Plugins.Compatibility/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Windows.Forms.Legacy/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Effects.Gpu/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PaintDotNet.Effects.Legacy/5.11.8685.3093": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Windows.Extensions/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "K4os.Compression.LZ4/1.2.16.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Private.CoreLib/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Accessibility/4.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Configuration.ConfigurationManager/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PresentationCore/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.IO.Hashing/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.CodeDom/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Interop.WIA/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Private.Uri/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Private.Xml/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Private.Xml.Linq/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PresentationFramework/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Security.Permissions/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Diagnostics.EventLog/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Security.Cryptography.ProtectedData/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "DirectWriteForwarder/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "UIAutomationTypes/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "UIAutomationProvider/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Windows.Input.Manipulations/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ReachFramework/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Printing/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "PresentationUI/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Security.Cryptography.Xml/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.DirectoryServices/4.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Security.Cryptography.Pkcs/7.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

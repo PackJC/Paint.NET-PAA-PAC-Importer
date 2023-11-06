@@ -1,0 +1,2505 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PaintDotNet.Windows.Core</name>
+    </assembly>
+    <members>
+        <member name="M:PaintDotNet.Direct2D1.DeviceContextExtensions.IsSoftwareContext(PaintDotNet.Direct2D1.IDeviceContext)">
+            <summary>
+            Returns a flag indicating whether the device context is using software rendering. This also indicates
+            that <see cref="M:PaintDotNet.Direct2D1.IDeviceContext.CreateSharedBitmap(PaintDotNet.Imaging.IBitmapLock,System.Nullable{PaintDotNet.Direct2D1.SharedBitmapProperties}@)"/> may be used
+            to create a device bitmap that shares memory with a CPU bitmap (without copying).
+            </summary>
+            <remarks>
+            If the device context is using software rendering, it can be appropriate to lower the complexity or
+            quality of rendering in order to improve performance. Hardware accelerated rendering is always
+            significantly faster.<br/>
+            This method is more accurate than using <see cref="M:PaintDotNet.Direct2D1.IDeviceContext.IsSupported(PaintDotNet.Direct2D1.DeviceContextProperties@)"/> with <see cref="F:PaintDotNet.Direct2D1.DeviceContextType.Software"/>,
+            which only returns true if the device context was created with <see cref="M:PaintDotNet.Direct2D1.IDirect2DFactory.CreateBitmapDeviceContext(PaintDotNet.Imaging.IBitmap,PaintDotNet.Direct2D1.DeviceContextProperties@)"/>.
+            This method also returns true if the device was created using <see cref="M:PaintDotNet.Direct2D1.IDirect2DFactory.CreateDevice(PaintDotNet.Dxgi.IDxgiDevice)"/>
+            with the WARP <see cref="T:PaintDotNet.Dxgi.IDxgiAdapter"/>.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.DeviceContextExtensions.DrawImage(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Direct2D1.IDeviceImage,PaintDotNet.Rendering.RectFloat,System.Nullable{PaintDotNet.Rendering.RectFloat}@,PaintDotNet.Direct2D1.InterpolationMode,PaintDotNet.Direct2D1.CompositeMode)">
+            <summary>
+            Draws the image, fitting the given imageRect from the image to the given targetRect on the
+            device context. If null is passed for imageRect then the whole image is used, and it is
+            also required that the image has a finite extent (which is calculated by calling
+            IDeviceContext.GetImageLocalBounds()). If the image has an infinite extent, the results
+            are undefined and may or may not cause an exception to be thrown.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.DeviceEffectExtensions.InvalidateInputRectangle(PaintDotNet.Direct2D1.IDeviceEffect,PaintDotNet.Direct2D1.IDeviceContext,System.Int32,PaintDotNet.Rendering.RectFloat)">
+            <summary>
+            <inheritdoc cref="M:PaintDotNet.Direct2D1.IDeviceContext.InvalidateEffectInputRectangle(PaintDotNet.Direct2D1.IDeviceEffect,System.Int32,PaintDotNet.Rendering.RectFloat)"/>
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.DeviceEffectExtensions.Initialize``1(``0,System.Action{``0})">
+            <summary>
+            This extension method enables creating an effect and setting its properties without the need for
+            a local variable.
+            </summary>
+            <remarks>
+            In this example, the <see cref="T:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect"/> is created and initialized without needing
+            to declare and name a local variable:<br/>
+            <br/>
+            <code>
+            InvertEffect invertedBlur = new InvertEffect(
+                deviceContext,
+                new GaussianBlurEffect(deviceContext).Initialize(e =>
+                {
+                    e.Properties.Input.Set(sourceImage);
+                    e.Properties.StandardDeviation.SetValue(30.0f);
+                    e.Properties.BorderMode.SetValue(BorderMode.Hard);
+                    e.Properties.Optimization.SetValue(GaussianBlurOptimization.Balanced);
+                }));
+            </code>
+            <br/>
+            This simplifies the creation of effect graphs, especially when there are effects that are only
+            used once.
+            </remarks>
+            <returns>The effect that was passed in for the <paramref name="effect"/> parameter.</returns>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Direct2DFactory.PerThread">
+            <summary>
+            Gets a reference to the per-thread cached IDirect2DFactory.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Direct2DFactory.Create">
+            <summary>
+            Creates a new Direct2D factory.
+            </summary>
+            <remarks>
+            Each Direct2D factory is a separate resource domain. Resources cannot be shared across factories.
+            Each Direct2D factory is also a thread synchronization domain. All calls into the factory and into
+            any resources created from it are serialized; that is, a per-factory mutex is locked on each call.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.DrawInfoExtensions.SetPixelShader``1(PaintDotNet.Direct2D1.IDrawInfo,PaintDotNet.Direct2D1.PixelOptions)">
+            <summary>
+            Set the shader instructions for this transform. The ShaderID used is typeof(TShader).GUID.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.DrawingContext.BeginDrawNull">
+            <summary>
+            Creates a drawing context that doesn't actually draw anything. 
+            </summary>
+            <remarks>
+            This is useful, for instance, for performing text or other measurements before allocating a properly sized bitmap.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.DrawingContext.BeginDrawNull(PaintDotNet.Direct2D1.IDirect2DFactory)">
+            <summary>
+            Creates a drawing context that doesn't actually draw anything. 
+            </summary>
+            <remarks>
+            This is useful, for instance, for performing text or other measurements before allocating a properly sized bitmap.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.DrawingContext.Wrap(PaintDotNet.Direct2D1.IDeviceContext)">
+            <summary>
+            Instantiates the appropriate DrawingContext class for the given render target, but does not call BeginDraw.
+            </summary>
+            <remarks>
+            This is usually only used in advanced scenarios.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.AffineTransform2DEffect">
+            <summary>
+            The 2D affine transform effect applies a spatial transform to a image based on a 3x2 matrix
+            using the Direct2D matrix transform and any of six interpolation modes. You can use this
+            effect to rotate, scale, skew, or translate an image. Or, you can combine these operations.
+            Affine transfers preserve parallel lines and the ratio of distances between any three points
+            in an image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/2d-affine-transform">2D affine transform effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.AffineTransform2DEffect.Props.InterpolationMode">
+            <summary>
+            The interpolation mode used to scale the image.
+            The default value is <see cref="F:PaintDotNet.Direct2D1.AffineTransform2DInterpolationMode.Linear"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.AffineTransform2DEffect.Props.BorderMode">
+            <summary>
+            The mode used to calculate the border of the image, soft or hard.
+            The default value is <see cref="F:PaintDotNet.Direct2D1.BorderMode.Soft"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.AffineTransform2DEffect.Props.TransformMatrix">
+            <summary>
+            The 3x2 matrix to transform the image. The default value is the identity transform.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.AffineTransform2DEffect.Props.Sharpness">
+            <summary>
+            In the high quality cubic interpolation mode, the sharpness level of the scaling filter as a float between 0 and 1.<br/>
+            The values are unitless. You can use sharpness to adjust the quality of an image when you scale the image.<br/>
+            The sharpness factor affects the shape of the kernel. The higher the sharpness factor, the smaller the kernel.<br/>
+            The default value is 0.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.AlphaMaskEffect">
+            <summary>
+            This effect applies an alpha mask to an image. It has two inputs, named Destination and Mask.
+            Color values in the Destination image are multiplied by the alpha channel of the Mask image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/alpha-mask-effect">Alpha mask effect</a>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ArithmeticCompositeEffect">
+            <summary>
+            Use the arithmetic composite effect to combine 2 images using a weighted sum of pixels from the input images.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/arithmetic-composite">Arithmetic composite effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ArithmeticCompositeEffect.Props.Coefficients">
+            <summary>
+            The coefficients for the equation used to composite the two input images. The coefficients are unitless and unbounded.<br/>
+            The default value is <c>{ 1, 0, 0, 0 }</c>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ArithmeticCompositeEffect.Props.ClampOutput">
+            <summary>
+            The effect clamps color values to between 0 and 1 before the effect passes the values to the next effect in the graph.
+            If you set this to true the effect will clamp the values. If you set this to false, the effect will not clamp the color
+            values, but other effects and the output surface may clamp the values if they are not of high enough precision.<br/>
+            The default value is false.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.AtlasEffect">
+            <summary>
+            You can use this effect to output a portion of an image but retain the region outside of the
+            portion for use in subsequent operations. The atlas effect is useful if you want to load a
+            large image made up of many smaller images, such as various frames of a sprite.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/atlas">Atlas effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.AtlasEffect.Props.InputRect">
+            <summary>
+            The portion of the image passed to the next effect.<br/>
+            The default value is <c>{ -float.Max, -float.Max, +float.Max, +float.Max }</c>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.AtlasEffect.Props.InputPaddingRect">
+            <summary>
+            The maximum size sampled for the output rectangle.<br/>
+            The default value is <c>{ -float.Max, -float.Max, +float.Max, +float.Max }</c>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.BitmapSourceEffect">
+            <summary>
+            Use the bitmap source effect to generate an <see cref="T:PaintDotNet.Direct2D1.IDeviceImage"/> from an <see cref="T:PaintDotNet.Imaging.IBitmapSource"/> for use
+            as an input in an effect graph. This effect performs scaling and rotation on the CPU. It can also optionally
+            generate a system memory mipmap, which can be a performance optimization for actively scaling very large images at
+            various reduced resolutions.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/bitmap-source">Bitmap Source effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BitmapSourceEffect.Props.BitmapSource">
+            <summary>
+            The <see cref="T:PaintDotNet.Imaging.IBitmapSource" /> containing the image data to be loaded.<br/>
+            The defalut value is <c>null</c>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BitmapSourceEffect.Props.Scale">
+            <summary>
+            The scale amount in the X and Y direction. The effect multiplies the width by the X value and the height
+            by the Y value. This property is a Vector2Float defined as: (X scale, Y scale). The scale amounts are
+            float, unitless, and must be positive or 0.<br/>
+            The default value is <c>{ 1.0f, 1.0f }</c>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BitmapSourceEffect.Props.InterpolationMode">
+            <summary>
+            The interpolation mode used to scale the image. If the mode disables the mipmap, then BitmapSourceEffect
+            will cache the image at the resolution determined by the Scale and EnableDpiCorrection properties.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.BitmapSourceInterpolationMode.Linear"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BitmapSourceEffect.Props.EnableDpiCorrection">
+            <summary>
+            If you set this to true, the effect will scale the input image to convert the DPI reported by
+            <see cref="T:PaintDotNet.Imaging.IBitmapSource"/> to the DPI of the device context. The effect uses the interpolation mode
+            you set with the <see cref="P:PaintDotNet.Direct2D1.Effects.BitmapSourceEffect.Props.InterpolationMode"/> property. If you set this to false, the effect uses
+            a DPI of 96.0 for the output image.<br/>
+            The default value is <c>false</c>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BitmapSourceEffect.Props.AlphaMode">
+            <summary>
+            The alpha mode of the output.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.BitmapSourceAlphaMode.Premultiplied"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BitmapSourceEffect.Props.Orientation">
+            <summary>
+            A flip and/or rotation operation to be performed on the image.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.BitmapSourceOrientation.Default"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.BlendEffect">
+            <summary>
+            Use the blend effect to combine 2 images. This effect has 26 blend modes.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/blend">Blend effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BlendEffect.Props.Mode">
+            <summary>
+            The blend mode used for the effect.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.BorderEffect">
+            <summary>
+            Use the border effect to extend an image from the edges. You can use this effect to repeat the pixels
+            from the edges of the image, wrap the pixels from the opposite end of the image, or mirror the pixels
+            across the bitmap border to extend the bitmap region.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/border">Border effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BorderEffect.Props.EdgeModeX">
+            <summary>
+            The edge mode in the X direction for the effect. The default value is BorderEdgeMode.Clamp.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BorderEffect.Props.EdgeModeY">
+            <summary>
+            The edge mode in the Y direction for the effect. The default value is BorderEdgeMode.Clamp.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.BrightnessEffect">
+            <summary>
+            Use the brightness effect to control the brightness of the image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/brightness">Brightness effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BrightnessEffect.Props.WhitePoint">
+            <summary>
+            The upper portion of the brightness transfer curve. The white point adjusts the appearance of the brighter
+            portions of the image. This property is for both the x value and the y value, in that order. Each of the
+            values of this property are between 0 and 1, inclusive.
+            The default value is { 1.0f, 1.0f }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BrightnessEffect.Props.BlackPoint">
+            <summary>
+            The lower portion of the brightness transfer curve. The black point adjusts the appearance of the darker
+            portions of the image. This property is for both the x value and the y value, in that order. Each of the
+            values of this property are between 0 and 1, inclusive.
+            The default value is { 0.0f, 0.0f }.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ChromaKeyEffect">
+            <summary>
+            Converts a given color plus or minus a tolerance to alpha. For example, chroma-key can remove the
+            background of an image for a green-screen overlay effect.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/chromakey-effect">Chroma-key effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ChromaKeyEffect.Props.Color">
+            <summary>
+            This property indicates the color that should be converted to alpha. The default color is black.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ChromaKeyEffect.Props.Tolerance">
+            <summary>
+            This property is a float value indicating the tolerance for matching the color specified in the
+            Color property. The range is [ 0.0f, 1.0f ] and the default value is 0.1f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ChromaKeyEffect.Props.InvertAlpha">
+            <summary>
+            A boolean value indicating whether the alpha values should be inverted. The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ChromaKeyEffect.Props.Feather">
+            <summary>
+            A boolean value specifying whether the edges of the output should be softened in the alpha channel.
+            When set to false, the alpha output by the effect is 1-bit: either fully opaque or fully transparent.
+            Setting to true results in a softening of edges in the alpha channel of the Chroma Key output.
+            The default value is false.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ColorManagementEffect">
+            <summary>
+            Use the color management effect to transform an image from one ICC (International Color Consortium)
+            color profile to another. The effect transforms the image according to the ICC specification.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/color-management">Color management effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect.Props.SourceColorContext">
+            <summary>
+            The source color space information. The default value is null.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect.Props.SourceRenderingIntent">
+            <summary>
+            Which ICC rendering intent to use. The default value is ColorManagementRenderingIntent.Perceptual.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect.Props.DestinationColorContext">
+            <summary>
+            The destination color space information. The default value is null.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect.Props.DestinationRenderingIntent">
+            <summary>
+            Which ICC rendering intent to use. The default value is ColorManagementRenderingIntent.Perceptual.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect.Props.AlphaMode">
+            <summary>
+            How to interpret alpha data that is contained in the input image.
+            The default value is ColorManagementAlphaMode.Premultiplied.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect.Props.Quality">
+            <summary>
+            The quality level of the transform. The default value is ColorManagementQuality.Best.
+            </summary>
+            <remarks>
+            <b>NOTE:</b> When using this class, the default value of this property is <see cref="F:PaintDotNet.Direct2D1.ColorManagementQuality.Best"/>,
+            not <see cref="F:PaintDotNet.Direct2D1.ColorManagementQuality.Normal"/> as documented by Direct2D. If you create this effect using
+            <see cref="M:PaintDotNet.Direct2D1.IDeviceEffectFactory.CreateEffect(PaintDotNet.Direct2D1.DeviceEffectID@)"/>, the default value will be
+            <see cref="F:PaintDotNet.Direct2D1.ColorManagementQuality.Normal"/>.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ColorMatrixEffect">
+            <summary>
+            Use the color matrix effect to alter the RGBA values of a bitmap.<br/>
+            <br/>
+            You can use this effect to:<br/>
+            <list type="bullet">
+            <item>Remove a color channel from an image.</item>
+            <item>Reduce the color in an image.</item>
+            <item>Swap color channels.</item>
+            <item>Combine color channels.</item>
+            </list>
+            <br/>
+            Many built-in effects are specializations of color matrix that are optimized for the intended use of the effects. Examples include saturation, hue rotate, sepia, and temperature and tint.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/color-matrix">Color matrix effect</a>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorMatrixEffect.Props.ColorMatrix">
+            <summary>
+            A 5x4 matrix of float values. The elements in the matrix are not bounded and are unitless.
+            The default value is the identity matrix.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorMatrixEffect.Props.AlphaMode">
+            <summary>
+            The alpha mode of the output. The default value is ColorMatrixAlphaMode.Premultiplied.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorMatrixEffect.Props.ClampOutput">
+            <summary>
+            Whether the effect clamps color values to between 0 and 1 before the effect passes the values to the
+            next effect in the graph. The effect clamps the values before it premultiplies the alpha.
+            If you set this to true the effect will clamp the values. If you set this to false, the effect will
+            not clamp the color values, but other effects and the output surface may clamp the values if they are
+            not of high enough precision.
+            The default value is false.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.CompositeEffect">
+            <summary>
+            Use the composite effect to combine 2 or more images. This effect has 13 different composite modes.
+            The composite effect accepts 2 or more inputs. When you specify 2 images, destination is the first
+            input (index 0) and the source is the second input (index 1). If you specify more than 2 inputs the
+            images are composited starting with the first input and the second and so on.<br/>
+            <br/>
+            This effect implements all of the modes using the blending unit of the graphics processing unit (GPU).<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/composite">Composite effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.CompositeEffect.Props.Mode">
+            <summary>
+            The compositing mode used for the effect.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ContrastEffect">
+            <summary>
+            Increases or decreases the contrast of an image.<br/>
+            <br/>
+            The contrast function modifies each color channel value using two piecewise quadratic polynomials that
+            meet with slope continuity at the point (0.5, 0.5).<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/contrast-effect">Contrast effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ContrastEffect.Props.Contrast">
+            <summary>
+            Specifies the amount by which to adjust the contrast of the image. Negative values reduce
+            contrast, while positive values increase contrast.
+            The range of this value is [ -1.0f, +1.0f ], and the default value is 0.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ContrastEffect.Props.ClampInput">
+            <summary>
+            Indicates whether or not to clamp the input to [0.0, 1.0]. The default value is false.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect">
+            <summary>
+            Use the convolve matrix effect to apply an arbitrary 2D kernel to an image. You can use this effect to
+            blur, detect edges, emboss, or sharpen an image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/convolve-matrix">Convolve matrix effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect.Props.KernelUnitLength">
+            <summary>
+            The size of one unit in the kernel. The units are in (DIPs/kernel unit), where a kernel unit is
+            the size of the element in the convolution kernel. A value of 1 (DIP/kernel unit) corresponds
+            to one pixel in a image at 96 DPI. The default value is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect.Props.ScaleMode">
+            <summary>
+            The interpolation mode the effect uses to scale the image to the corresponding kernel unit length.
+            There are six scale modes that range in quality and speed. The default value is
+            ConvolveMatrixScaleMode.Linear.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect.Props.KernelSizeX">
+            <summary>
+            The width of the kernel matrix. The units are specified in kernel units. The default value is 3.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect.Props.KernelSizeY">
+            <summary>
+            The height of the kernel matrix. The units are specified in kernel units. The default value is 3.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect.Props.KernelMatrix">
+            <summary>
+            The kernel matrix to be applied to the image. The kernel elements aren't bounded and are specified as floats.
+            The first set of KernelSizeX numbers in the FLOAT[] corresponds to the first row in the kernel. The second
+            set of KernelSizeX numbers correspond to the second row, and so on up to KernelSizeY rows.
+            The default value is { 0, 0, 0, 0, 1, 0, 0, 0, 0 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect.Props.Divisor">
+            <summary>
+            The kernel matrix is applied to a pixel and then the result is divided by this value. 0 behaves as a value
+            of float epsilon. The default value is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect.Props.Bias">
+            <summary>
+            The effect applies the kernel matrix, the divisor, and then the bias is added to the result. The bias is
+            unbounded and unitless. The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect.Props.KernelOffset">
+            <summary>
+            Shifts the convolution kernel from a centered position on the output pixel to a position you specify
+            left/right and up/down. The offset is defined in kernel units. With some offsets and kernel sizes, the
+            convolution kernel's samples won't land on a pixel image center. The pixel values for the kernel sample
+            are computed by bilinear interpolation.
+            The default values is { 0, 0 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect.Props.PreserveAlpha">
+            <summary>
+            Specifies whether the convolution kernel is applied to the alpha channel or only the color channels.
+            If you set this to true, the convolution kernel is applied only to the color channels.
+            If you set this to false, the convolution kernel is applied to all channels.
+            The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect.Props.BorderMode">
+            <summary>
+            The mode used to calculate the border of the image, soft or hard. The default value is BorderMode.Soft.<br/>
+            If set to BorderMode.Soft, the effect pads the input image with transparent black pixels for samples
+            outside of the input bounds when it applies the convolution kernel. This creates a soft edge for the
+            image, and in the process expands the output bitmap by the size of the kernel.<br/>
+            If set to BorderMode.Hard, the effect extends the input image with a mirror-type border transform for samples
+            outside of the input bounds. The size of the output bitmap is equal to the size of the input bitmap.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect.Props.ClampOutput">
+            <summary>
+            Whether the effect clamps color values to between 0 and 1 before the effect passes the values to the next
+            effect in the graph. The effect clamps the values before it premultiplies the alpha.
+            If you set this to true, the effect will clamp the values.
+            If you set this to false, the effect will not clamp the color values, but other effects and the output
+            surface may clamp the values if they are not of high enough precision.
+            The default value is false.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect.Props.SetKernelMatrixAndSize(System.Collections.Generic.IReadOnlyList{System.Collections.Generic.IReadOnlyList{System.Single}})">
+            <summary>
+            A helper method that sets the KernelMatrix, KernelY, and KernelX properties.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect.Props.SetKernelMatrixAndSize(System.Single[0:,0:])">
+            <summary>
+            A helper method that sets the KernelMatrix, KernelY, and KernelX properties.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.CropEffect">
+            <summary>
+            Use the crop effect to output a specified region of an image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/crop">Crop effect</a>
+            </summary>
+            <remarks>
+            This effect cannot be used to expand the size of an image. To expand the size of an image, use BorderEffect2
+            with an EdgeMode of Transparent and then apply the CropEffect to that.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.CropEffect.Props.Rect">
+            <summary>
+            The region to be cropped. The default value is { -float.Max, -float.Max, +float.Max, +float.Max },
+            which results in no cropping.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.CropEffect.Props.BorderMode">
+            <summary>
+            Specifies how the border of the cropped region is treated.<br/>
+            BorderMode.Soft will apply antialiasing if the crop rectangle falls on fractional pixel coordinates.<br/>
+            BorderMode.Hard will result in clamping and a hard edge.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.BorderMode.Soft"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.CrossFadeEffect">
+            <summary>
+            This effect combines two images by adding weighted pixels from the input images.<br/>
+            <br/>
+            It has two inputs, named Destination and Source.<br/>
+            <br/>
+            The cross fade formula is: <code>Output = SourceWeight * Source + (1 - SourceWeight) * Destination</code><br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/cross-fade-effect">Cross-fade effect</a>.<br/>
+            <br/>
+            Please note that Direct2D's Weight property is reversed from what is implemented here; put another
+            way, the inputs have been renamed from Destination and Source to Source and Destination. This results
+            in a more natural mapping for the SourceWeight property.<br/>
+            <br/>
+            You can use the Direct2D meanings for the inputs and properties by creating the effect manually
+            with IDeviceContext.CreateEffect(DeviceEffectIDs.CrossFade), and then using SetValue(CrossFadeProperty.Weight)
+            to set the Weight property.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.CrossFadeEffect.Props.SourceWeight">
+            <summary>
+            How much to weigh the source image color values versus the destination image. The minimum value
+            is 0.0f (exclusively use Destination to determine the output) and the maximum value is 1.0f
+            (exclusively use Source to determine the output).<br/>
+            The default value is 0.5f.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.CustomEffectImpl.OnInitialize">
+            <summary>
+            The effect can use this method to do one time initialization tasks.<br/>
+            This method is called when the effect is created, immediately after the constructor.<br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/api/d2d1effectauthor/nf-d2d1effectauthor-id2d1effectimpl-initialize">ID2D1EffectImpl::Initialize</a>
+            </summary>
+            <remarks>
+            The IDeviceEffectContext and ITransformGraph objects are available via the EffectContext and TransformGraph properties.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.CustomEffectImpl.OnPrepareForRender(PaintDotNet.Direct2D1.ChangeType)">
+            <summary>
+            Prepares an effect for the rendering process.<br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/api/d2d1effectauthor/nf-d2d1effectauthor-id2d1effectimpl-prepareforrender">ID2D1Effect::PrepareForRender</a>
+            </summary>
+            <remarks>
+            This method is called by the renderer when the effect is within an effect graph that is drawn.
+            The method will be called:
+            * If the effect has been initialized but has not previously been drawn.
+            * If an effect property has been set since the last draw call.
+            * If the context state has changed since the effect was last drawn.
+            The method will not otherwise be called. The transforms created by the effect will be called to handle their input
+            and output rectangles for every draw call.
+            Most effects defer creating any resources or specifying a topology until this call is made.They store their properties
+            and map them to a concrete set of rendering techniques when first drawn.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.CustomEffectImpl.OnSetGraph">
+            <summary>
+            The renderer calls this method to provide the effect implementation with a way to specify its transform graph and
+            transform graph changes.<br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/api/d2d1effectauthor/nf-d2d1effectauthor-id2d1effectimpl-setgraph">ID2D1EffectImpl::SetGraph</a>
+            </summary>
+            <remarks>
+            The ITransformGraph object is available via the TransformGraph property.
+            The renderer calls this method when:
+            * When the effect is first initialized.
+            * If the number of inputs to the effect changes.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.CustomEffectPropertyStorage">
+            <summary>
+            This is a special "fake enough" implementation of IProperties that is only for used by
+            an ICustomEffectImpl implementation. This permits a single way of defining and accessing
+            properties across effect registration, implementation, and consumption. Most operations are
+            not supported. This class cannot be passed to native code, as there is no CCW for
+            ID2D1Properties, and Direct2D only calls into our ID2D1EffectImpl anyway.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.CustomEffect`1">
+            <summary>
+            The base class for implementing a custom effect in Direct2D. The custom effects system in PaintDotNet.Direct2D1
+            handles many things automatically, such as just-in-time registration and auto-generation of the registration XML.
+            </summary>
+            <typeparam name="TProperties">The properties class. It is recommended to use a sealed, nested class named Props.</typeparam>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DeviceEffectProperties.ClassID">
+            <summary>
+            Implemented by the derived class to specify the effect's class ID (CLSID) when registering and creating
+            the effect and for binding to an IDeviceEffectProperties.<br/>
+            Note that this is different than the <see cref="P:PaintDotNet.Direct2D1.Effects.DeviceEffectProperties.ID"/> property accessor, which queries the
+            <see cref="T:PaintDotNet.Direct2D1.IDeviceEffectProperties"/> for the actual runtime effect class ID.<br/>
+            Overriding this property is only necessary in advanced scenarios, such as when wrapping an existing
+            effect (e.g. built-in Direct2D effects), or when working with CustomEffects that have their own
+            generic type arguments (e.g. PixelShaderEffect).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DeviceEffectProperties.ID">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.DeviceEffectProperty.ClassID"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DeviceEffectProperties.DisplayName">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.DeviceEffectProperty.DisplayName"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DeviceEffectProperties.Author">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.DeviceEffectProperty.Author"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DeviceEffectProperties.Category">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.DeviceEffectProperty.Category"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DeviceEffectProperties.Description">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.DeviceEffectProperty.Description"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DeviceEffectProperties.Cached">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.DeviceEffectProperty.Cached"/><br/>
+            The default value is <c>false</c>.
+            </summary>
+            <remarks>
+            Setting this to <c>true</c> may or may not improve performance, and will likely increase
+            GPU memory use (sometimes substantially). It can be used to workaround some bugs in Direct2D's
+            built-in effects library, such as when using <see cref="T:PaintDotNet.Direct2D1.Effects.ScaleEffect"/> with a clipping rect.
+            It can also sometimes be used to fix a <see cref="T:PaintDotNet.Direct2D1.IntermediateTooLargeException"/> in certain
+            types of effect graphs, such as when chaining transforms (e.g. <see cref="T:PaintDotNet.Direct2D1.Effects.ScaleEffect"/>,
+            <see cref="T:PaintDotNet.Direct2D1.Effects.AffineTransform2DEffect"/>, <see cref="T:PaintDotNet.Direct2D1.Effects.PerspectiveTransform3DEffect"/>,
+            <see cref="T:PaintDotNet.Direct2D1.Effects.Transform3DEffect"/>).
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DeviceEffectProperties.Precision">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.DeviceEffectProperty.Precision"/><br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.BufferPrecision.Unknown"/>, which permits Direct2D to
+            automatically select the precision based on the inputs or other ambient information.
+            See
+            <a href="https://learn.microsoft.com/en-us/windows/win32/direct2d/precision-and-clipping-in-effect-graphs">Precision and numerical clipping in effect graphs</a>
+            for more information.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DeviceEffectProperties.MinInputCount">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.DeviceEffectProperty.MinInputs"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DeviceEffectProperties.MaxInputCount">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.DeviceEffectProperty.MaxInputs"/>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.DirectionalBlurEffect">
+            <summary>
+            The directional blur effect is similar to Gaussian blur, except you can skew the blur in a particular
+            direction. You can use this effect to make an image look as if it is in motion or to emphasize an
+            animated image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/directional-blur">Directional blur effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DirectionalBlurEffect.Props.StandardDeviation">
+            <summary>
+            The amount of blur to be applied to the image. You can compute the blur radius of the kernel by
+            multiplying the standard deviation by 3. The units of both the standard deviation and blur
+            radius are DIPs. A value of 0 DIPs disables this effect.
+            The default value is 3.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DirectionalBlurEffect.Props.Angle">
+            <summary>
+            The angle of the blur relative to the x-axis, in the counterclockwise direction. The units are
+            specified in degrees. The blur kernel is first generated using the same process as for the Gaussian
+            blur effect. The kernel values are then transformed according to the blur angle.
+            The default value is 0.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DirectionalBlurEffect.Props.Optimization">
+            <summary>
+            The optimization mode. The default value is DirectionalBlurOptimization.Quality.
+            </summary>
+            <remarks>
+            <b>NOTE:</b> When using this class, the default value of this property is <see cref="F:PaintDotNet.Direct2D1.DirectionalBlurOptimization.Quality"/>,
+            not <see cref="F:PaintDotNet.Direct2D1.DirectionalBlurOptimization.Balanced"/> as documented by Direct2D. If you create
+            this effect using <see cref="M:PaintDotNet.Direct2D1.IDeviceEffectFactory.CreateEffect(PaintDotNet.Direct2D1.DeviceEffectID@)"/>, the default
+            value will be <see cref="F:PaintDotNet.Direct2D1.DirectionalBlurOptimization.Balanced"/>.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DirectionalBlurEffect.Props.BorderMode">
+            <summary>
+            The mode used to calculate the border of the image, soft or hard.
+            When set to BorderMode.Soft, the effect pads the image with transparent black pixels as it applies
+            the blur kernel, resulting in a soft edge.
+            When set to BorderMode.Hard, the effect clamps the output to the size of the input image. When the
+            effect applies the blur kernel, it extends the input image with a mirror-type border transform for
+            samples outside of the input bounds.
+            The default value is BorderMode.Soft.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.DiscreteTransferEffect">
+            <summary>
+            Use the discrete transfer effect to map the color intensities of an image using a step transfer function
+            created from a list of values you provide.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/discrete-transfer">Discrete transfer effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DiscreteTransferEffect.Props.RedTable">
+            <summary>
+            The list of values used to define the transfer function for the Red channel.
+            The default values are { 0, 1 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DiscreteTransferEffect.Props.RedDisable">
+            <summary>
+            If you set this to true the effect does not apply the transfer function to the Red channel. If you set
+            this to false the effect applies the RedDiscreteTransfer function to the Red channel.
+            The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DiscreteTransferEffect.Props.GreenTable">
+            <summary>
+            The list of values that define the transfer function for the Green channel.
+            The default values are { 0, 1 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DiscreteTransferEffect.Props.GreenDisable">
+            <summary>
+            If you set this to true the effect does not apply the transfer function to the Green channel. If you set
+            this to false the effect applies the GreenDiscreteTransfer function to the Green channel.
+            The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DiscreteTransferEffect.Props.BlueTable">
+            <summary>
+            The list of values that define the transfer function for the Blue channel.
+            The default values are { 0, 1 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DiscreteTransferEffect.Props.BlueDisable">
+            <summary>
+            If you set this to true the effect does not apply the transfer function to the Blue channel. If you set
+            this to false the effect applies the BlueDiscreteTransfer function to the Blue channel.
+            The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DiscreteTransferEffect.Props.AlphaTable">
+            <summary>
+            The list of values that define the transfer function for the Alpha channel.
+            The default values are { 0, 1 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DiscreteTransferEffect.Props.AlphaDisable">
+            <summary>
+            If you set this to true the effect does not apply the transfer function to the Alpha channel. If you set
+            this to false the effect applies the AlphaDiscreteTransfer function to the Alpha channel.
+            The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DiscreteTransferEffect.Props.ClampOutput">
+            <summary>
+            Whether the effect clamps color values to between 0 and 1 before the effect passes the values to the next
+            effect in the graph. The effect clamps the values before it premultiplies the alpha.
+            If you set this to true the effect will clamp the values.
+            If you set this to false, the effect will not clamp the color values, but other effects and the output
+            surface may clamp the values if they are not of high enough precision.
+            The default value is false.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.DisplacementMapEffect">
+            <summary>
+            Use the displacement map effect to displace the pixels of the input image by the intensity values of a
+            second input image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/displacement-map">Displacement map effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DisplacementMapEffect.Props.Scale">
+            <summary>
+            Multiplies the intensity of the selected channel from the displacement image. The higher you set
+            this property, the more the effect displaces the pixels.
+            The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DisplacementMapEffect.Props.XChannelSelect">
+            <summary>
+            The effect extracts the intensity from this color channel and uses it to spatially displace the image in the X direction.
+            The default value is ChannelSelector.A.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DisplacementMapEffect.Props.YChannelSelect">
+            <summary>
+            The effect extracts the intensity from this color channel and uses it to spatially displace the image in the Y direction.
+            The default value is ChannelSelector.A.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.DistantDiffuseEffect">
+            <summary>
+            Use the distant-diffuse lighting effect to create an image that appears to be a non-reflective surface with where
+            the light source appears to be coming from a long distance (like the sun or overhead lights) and the light is
+            scattered in all directions. This effect uses the alpha channel as a height map and lights the image with a distant
+            light source.<br/>
+            <br/>
+            The color of the output bitmap is a result of light color, light position, and the surface geometry of the image.
+            The alpha channel output for each pixel with diffuse lighting is always 1.0.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/distant-diffuse">Distant-diffuse lighting effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantDiffuseEffect.Props.Azimuth">
+            <summary>
+            The direction angle of the light source in the XY plane relative to the X-axis in the counter clock wise
+            direction. The units are in degrees and must be between 0 and 360 degrees.
+            The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantDiffuseEffect.Props.Elevation">
+            <summary>
+            The direction angle of the light source in the YZ plane relative to the Y-axis in the counter clock wise
+            direction. The units are in degrees and must be between 0 and 360 degrees.
+            The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantDiffuseEffect.Props.DiffuseConstant">
+            <summary>
+            The ratio of diffuse reflection to amount of incoming light. This property must be between 0 and 10,000
+            and is unitless.
+            The default value is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantDiffuseEffect.Props.SurfaceScale">
+            <summary>
+            The scale factor in the Z direction. The surface scale is unitless and must be between 0 and 10,000.
+            The default value is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantDiffuseEffect.Props.Color">
+            <summary>
+            The color of the incoming light. This property is exposed as a D2D1_VECTOR_3F (R, G, B) and used to compute
+            L[r], L[g], L[b].
+            The default value is { 1, 1, 1 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantDiffuseEffect.Props.KernelUnitLength">
+            <summary>
+            The size of an element in the Sobel kernel used to generate the surface normal in the X and Y direction.
+            This property maps to the dx and dy values in the Sobel gradient. This property is a Vector2Float (Kernel
+            Unit Length X, Kernel Unit Length Y) and is defined in (device-independent pixels (DIPs)/Kernel Unit). The
+            effect uses bilinear interpolation to scale the bitmap to match size of kernel elements.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantDiffuseEffect.Props.ScaleMode">
+            <summary>
+            The interpolation mode the effect uses to scale the image to the corresponding kernel unit length. There
+            are six scale modes that range in quality and speed.
+            The default value is DistantDiffuseScaleMode.Linear.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.DistantSpecularEffect">
+            <summary>
+            Use the distant-specular lighting effect to create an image that appears to be a reflective surface
+            where the light source appears to be coming from a long distance (like the sun or overhead lights).
+            This effect uses the alpha channel as a height map and lights the image with a distant light source.
+            The color of the output bitmap is a result of light color, light position, and the surface geometry.
+            The alpha channel output for each pixel with specular lighting is the maximum of the red, green, and
+            blue channel outputs for that pixel.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/distant-specular">Distant-specular lighting effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantSpecularEffect.Props.Azimuth">
+            <summary>
+            The direction angle of the light source in the XY plane relative to the X-axis in the counter
+            clock wise direction. The units are in degrees and must be between 0 and 360 degrees.
+            The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantSpecularEffect.Props.Elevation">
+            <summary>
+            The direction angle of the light source in the YZ plane relative to the Y-axis in the counter
+            clock wise direction. The units are in degrees and must be between 0 and 360 degrees.
+            The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantSpecularEffect.Props.SpecularExponent">
+            <summary>
+            The exponent for the specular term in the Phong lighting equation. A larger value corresponds
+            to a more reflective surface. The value is unitless and must be between 1.0 and 128.
+            The default value is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantSpecularEffect.Props.SpecularConstant">
+            <summary>
+            The ratio of specular reflection to the incoming light. The value is unitless and must be between
+            0 and 10,000.
+            The default value is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantSpecularEffect.Props.SurfaceScale">
+            <summary>
+            The scale factor in the Z direction. The value is unitless and must be between 0 and 10,000.
+            The default value is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantSpecularEffect.Props.Color">
+            <summary>
+            The color of the incoming light. The default value is { 1, 1, 1 } (white).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantSpecularEffect.Props.KernelUnitLength">
+            <summary>
+            The size of an element in the Sobel kernel used to generate the surface normal in the X and Y
+            direction. This property is a Vector2Float (Kernel Unit Length X, Kernel Unit Length Y) and is
+            defined in (device-independent pixels (DIPs)/Kernel Unit). The effect uses bilinear interpolation
+            to scale the bitmap to match size of kernel elements.
+            The default value is { 1, 1 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DistantSpecularEffect.Props.ScaleMode">
+            <summary>
+            The interpolation mode the effect uses to scale the image to the corresponding kernel unit length.
+            There are six scale modes that range in quality and speed.
+            The default value is DistantSpecularScaleMode.Linear.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.DpiCompensationEffect">
+            <summary>
+            Use the DPI compensation effect to automatically adjust an input bitmap to match the DPI of the context.
+            This is useful for situations where a bitmap is created or loaded at a different DPI than the screen.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/dpi-compensation">DPI compensation effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DpiCompensationEffect.Props.InterpolationMode">
+            <summary>
+            The interpolation mode the effect uses to scale the image.
+            The default value is DpiCompensationInterpolationMode.Linear.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DpiCompensationEffect.Props.BorderMode">
+            <summary>
+            The mode used to calculate the border of the image, soft or hard.
+            When set to BorderMode.Soft, pixels outside of the input boundaries are generated by the mirror
+            boder effect.
+            When set to BorderMode.Hard, pixels outside of the input boundaries are transparent black.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.DpiCompensationEffect.Props.InputDpi">
+            <summary>
+            The DPI of the input image. The default value is 96.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.EdgeDetectionEffect">
+            <summary>
+            Filters out the content of an image, leaving lines at the edges of contrasting sections of the image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/edge-detection-effect">Edge-detection effect</a>
+            </summary>
+            <remarks>
+            Note that this effect is a wrapper around Direct2D's built-in Edge-detection effect, which crashes
+            when using very small values for the Strength property. This wrapper implements a workaround.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.EdgeDetectionEffect.Props.Strength">
+            <summary>
+            A float value modulating the response of the edge detection filter. A low strength value means
+            that weaker edges will get filtered out, while a high value means stronger edges will get
+            filtered out. The allowed range is 0.0 to 1.0. The default value is 0.5.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.EdgeDetectionEffect.Props.BlurRadius">
+            <summary>
+            A float value specifying the amount of blur to apply. Applying blur is used to remove high
+            frequencies and reduce phantom edges. The allowed range is 0.0 to 10.0. The default value is
+            0.0 (no blur applied).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.EdgeDetectionEffect.Props.Mode">
+            <summary>
+            An enumeration value specifying which mode to use for edge detection. The default value is Sobel.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.EdgeDetectionEffect.Props.OverlayEdges">
+            <summary>
+            Edge detection only applies to the RGB channels, the alpha channel is ignored for purposes of
+            detecting edges.<br/>
+            When set to false, the output is fully opaque.<br/>
+            If set to true, the input opacity is preserved.<br/>
+            The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.EdgeDetectionEffect.Props.AlphaMode">
+            <summary>
+            Indicates the alpha mode of the input image. If the input is not opaque, this value is used to
+            determine whether to unpremultiply the inputs. The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.EmbossEffect">
+            <summary>
+            Creates a grayscale version of the image that appears as though it has been stamped into paper.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/emboss-effect">Emboss effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.EmbossEffect.Props.Height">
+            <summary>
+            A float value controlling the strength of the embossing effect. The allowed range is 0.0
+            to 10.0. The default value is 1.0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.EmbossEffect.Props.Direction">
+            <summary>
+            A float value specifying the light direction used to create the effect. The allowed range
+            is 0.0 to 360.0. The default value is 0.0.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ExposureEffect">
+            <summary>
+            Increase or decreases the exposure of the image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/exposure-effect">Exposure effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ExposureEffect.Props.ExposureValue">
+            <summary>
+            A float value that specifies how much to increase or decrease the exposure of the image.
+            The allowed range is -2.0 to 2.0. The default value is 0.0 (no change).
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.FloodEffect">
+            <summary>
+            Use the flood effect to generate a bitmap based on the specified color and alpha value. You can use
+            this effect when you want a specific color as an input for an effect, like a background color.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/flood">Flood effect</a>
+            </summary>
+            <remarks>
+            <b>NOTE:</b> This effect passes along the color value exactly as specified. You must pre-multiply the
+            value if you plan to pass the output to effects that expect a pre-multiplied input, which is
+            almost always the case. If you have a <see cref="T:PaintDotNet.Imaging.ColorRgba128Float"/>, you can convert it to a
+            premultiplied <see cref="T:PaintDotNet.Imaging.ColorPrgba128Float"/> with the <see cref="M:PaintDotNet.Imaging.ColorRgba128Float.ToPremultiplied"/>
+            method, then cast to <see cref="T:PaintDotNet.Rendering.Vector4Float"/> when setting the <see cref="P:PaintDotNet.Direct2D1.Effects.FloodEffect.Props.Color"/>
+            property.<br/>
+            <br/>
+            You can use <b>FloodEffect2</b> to simplify setting the Color property.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.FloodEffect.Props.Color">
+            <summary>
+            The color and opacity of the bitmap. The individual values for each channel are unbounded
+            and unitless. The effect doesn't modify the values for the channel. The RGBA values for each
+            channel range from 0 to 1. The default value is { R=0, G=0, B=0, A=1 } (opaque black).
+            To use a ColorRgba128Float as a premultiplied color, use: (Vector4Float)color.ToPremultiplied()
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.GammaTransferEffect">
+            <summary>
+            Use the gamma transfer effect to map the color intensities of an image using a gamma function created
+            using an amplitude, exponent, and offset you provide for each channel.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/gamma-transfer">Gamma transfer effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.RedAmplitude">
+            <summary>
+            The amplitude of the gamma transfer function for the Red channel.<br/>
+            The default value is 1.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.RedExponent">
+            <summary>
+            The exponent of the gamma transfer function for the Red channel.<br/>
+            The default value is 1.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.RedOffset">
+            <summary>
+            The offset of the gamma transfer function for the Red channel.<br/>
+            The default value is 0.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.RedDisable">
+            <summary>
+            If you set this to true it does not apply the transfer function to the Red channel. An identity transfer function is used.<br/>
+            If you set this to false it applies the gamma transfer function to the Red channel.<br/>
+            The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.GreenAmplitude">
+            <summary>
+            The amplitude of the gamma transfer function for the Green channel.<br/>
+            The default value is 1.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.GreenExponent">
+            <summary>
+            The exponent of the gamma transfer function for the Green channel.<br/>
+            The default value is 1.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.GreenOffset">
+            <summary>
+            The offset of the gamma transfer function for the Green channel.<br/>
+            The default value is 0.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.GreenDisable">
+            <summary>
+            If you set this to true it does not apply the transfer function to the Green channel. An identity transfer function is used.<br/>
+            If you set this to false it applies the gamma transfer function to the Green channel.<br/>
+            The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.BlueAmplitude">
+            <summary>
+            The amplitude of the gamma transfer function for the Blue channel.<br/>
+            The default value is 1.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.BlueExponent">
+            <summary>
+            The exponent of the gamma transfer function for the Blue channel.<br/>
+            The default value is 1.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.BlueOffset">
+            <summary>
+            The offset of the gamma transfer function for the Blue channel.<br/>
+            The default value is 0.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.BlueDisable">
+            <summary>
+            If you set this to true it does not apply the transfer function to the Blue channel. An identity transfer function is used.<br/>
+            If you set this to false it applies the gamma transfer function to the Blue channel.<br/>
+            The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.AlphaAmplitude">
+            <summary>
+            The amplitude of the gamma transfer function for the Alpha channel.<br/>
+            The default value is 1.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.AlphaExponent">
+            <summary>
+            The exponent of the gamma transfer function for the Alpha channel.<br/>
+            The default value is 1.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.AlphaOffset">
+            <summary>
+            The offset of the gamma transfer function for the Alpha channel.<br/>
+            The default value is 0.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.AlphaDisable">
+            <summary>
+            If you set this to true it does not apply the transfer function to the Alpha channel. An identity transfer function is used.<br/>
+            If you set this to false it applies the gamma transfer function to the Alpha channel.<br/>
+            The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.ClampOutput">
+            <summary>
+            Whether the effect clamps color values to between 0 and 1 before the effect passes the values to the
+            next effect in the graph. The effect clamps the values before it premultiplies the alpha.<br/>
+            If you set this to true, the effect will clamp the values.<br/>
+            If you set this to false, the effect will not clamp the color values, but other effects and the
+            output surface may clamp the values if they are not of high enough precision.<br/>
+            The default value is false.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect">
+            <summary>
+            Use the Gaussian blur effect to create a blur based on the Gaussian function over the entire
+            input image.<br/>
+            <br/>
+            You can use this effect to create glows and drop shadows and use the composite effect to apply
+            the result to the original image. It is useful in photo processing for filters like highlights
+            and shadows.<br/>
+            <br/>
+            You can use the output of this effect for input into lighting effects, like the
+            Specular Lighting or Diffuse Lighting effects, because the alpha channel is blurred too, and
+            lighting effects use the alpha channel to determine surface geometry as a height map.<br/>
+            <br/>
+            This effect is used by the built-in <see cref="T:PaintDotNet.Direct2D1.Effects.ShadowEffect"/>.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/gaussian-blur">Gaussian blur effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect.Props.StandardDeviation">
+            <summary>
+            The amount of blur to be applied to the image. You can compute the blur radius of the
+            kernel by multiplying the standard deviation by 3. You can compute the standard deviation
+            by dividing the blur radius by 3. The units of both the standard deviation and blur radius
+            are DIPs. A value of zero disables this effect entirely.<br/>
+            You can use the <see cref="T:PaintDotNet.Direct2D1.Effects.StandardDeviation"/> class to
+            simplify conversion between standard deviation and radius.<br/>
+            The range of this value is [0, 250], which corresponds to a blur radius of [0, 750].
+            The default value is 3.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect.Props.Optimization">
+            <summary>
+            The optimization mode. The default value is GaussianBlurOptimization.Quality.
+            </summary>
+            <remarks>
+            <b>NOTE:</b> When using this class, the default value of this property is <see cref="F:PaintDotNet.Direct2D1.GaussianBlurOptimization.Quality"/>,
+            not <see cref="F:PaintDotNet.Direct2D1.GaussianBlurOptimization.Balanced"/> as documented by Direct2D. If you create this effect using
+            <see cref="M:PaintDotNet.Direct2D1.IDeviceEffectFactory.CreateEffect(PaintDotNet.Direct2D1.DeviceEffectID@)"/>, the default value will be
+            <see cref="F:PaintDotNet.Direct2D1.GaussianBlurOptimization.Balanced"/>.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect.Props.BorderMode">
+            <summary>
+            The mode used to calculate the border of the image.<br/>
+            When set to BorderMode.Soft, the effect pads the image with transparent black pixels as it
+            applies the blur kernel, resulting in a soft edge.<br/>
+            When set to BorderMode.Hard, the effect clamps the output to the size of the input image.
+            When the effect applies the blur kernel, it extends the input image with a mirror-type border
+            transform for samples outside of the input bounds.<br/>
+            The default value is BorderMode.Soft.<br/>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.GrayscaleEffect">
+            <summary>
+            Converts an image to monochromatic gray.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/grayscale-effect">Grayscale effect</a>
+            </summary>
+            <remarks>
+            <b>NOTE:</b> This effect works on sRGB (gamma 2.2) images. To correctly apply this effect to linear (gamma 1.0,
+            aka "scRGB") images, use GrayscaleEffect2 instead and set the InputGamma property to Linear.<br/>
+            <br/>
+            This effect calculates the <i>luma</i> for the image's color values, which is different than
+            <i>luminance</i> which is calculated by the <see cref="T:PaintDotNet.Direct2D1.Effects.LuminanceToAlphaEffect"/>.
+            See <a href="https://www.geeksforgeeks.org/difference-between-luma-and-luminance/">Difference between Luma and Luminance</a>
+            for more information.<br/>
+            <br/>
+            This effect works correctly with both premultiplied and straight alpha images.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.HighlightsAndShadowsEffect">
+            <summary>
+            Adjusts the highlights and shadows of the image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/highlights-and-shadows-effect">Highlights and shadows effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.HighlightsAndShadowsEffect.Props.Highlights">
+            <summary>
+            A float value indicating how much to increase or decrease highlights. The allowed range is -1.0 to 1.0. The default value is 0.0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.HighlightsAndShadowsEffect.Props.Shadows">
+            <summary>
+            A float value indicating how much to increase or decrease shadows. The allowed range is -1.0 to 1.0. The default value is 0.0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.HighlightsAndShadowsEffect.Props.Clarity">
+            <summary>
+            A float value indicating how much to increase or decrease clarity. The allowed range is -1.0 to 1.0. The default value is 0.0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.HighlightsAndShadowsEffect.Props.InputGamma">
+            <summary>
+            Indicates the gamma of the input image. The effect works in linear gamma space, so if the input image is known to be linear, the
+            <see cref="F:PaintDotNet.Direct2D1.HighlightsAndShadowsInputGamma.Linear" /> value should be used to prevent sRGB to linear conversions from being
+            performed.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.HighlightsAndShadowsInputGamma.Srgb"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.HighlightsAndShadowsEffect.Props.MaskBlurRadius">
+            <summary>
+            A float value controlling the size of the region used around a pixel to classify the pixel as highlight or shadow. Lower values
+            result in more localized adjustments.<br/>
+            The allowed range is 0.0 to 10.0. The default value is 1.25.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.HistogramEffect">
+            <summary>
+            Use the histogram effect to generate a histogram for the input bitmap based on the specified number of bins.<br/>
+            <br/>
+            This effect does not produce an image output. Instead, its results are available through the <see cref="P:PaintDotNet.Direct2D1.Effects.HistogramEffect.Props.HistogramOutput"/>
+            property after it has been drawn with <see cref="M:PaintDotNet.Direct2D1.IDeviceContext.DrawImage(PaintDotNet.Direct2D1.IDeviceImage,System.Nullable{PaintDotNet.Rendering.Point2Float},System.Nullable{PaintDotNet.Rendering.RectFloat}@,PaintDotNet.Direct2D1.InterpolationMode,PaintDotNet.Direct2D1.CompositeMode)"/>.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/histogram">Histogram effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.HistogramEffect.Props.Bins">
+            <summary>
+            Specifies the number of bins used for the histogram. The range of intensity values that fall into a
+            particular bucket depend on the number of specified buckets.
+            The default value is 256.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.HistogramEffect.Props.ChannelSelect">
+            <summary>
+            Specifies the channel used to generate the histogram. This effect has a single data output
+            corresponding to the specified channel.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.HistogramEffect.Props.HistogramOutput">
+            <summary>
+            After the effect has been drawn to a render target (device context), this property contains the
+            histogram data.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.HueRotationEffect">
+            <summary>
+            Use the hue rotate effect to alter the hue of an image by applying a color matrix based on the rotation angle.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/hue-rotate">Hue rotatation effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.HueRotationEffect.Props.Angle">
+            <summary>
+            The angle to rotate the hue, in degrees. The default value is 0.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.HueToRgbEffect">
+            <summary>
+            Converts an HSL (Hue, Saturation, Lightness) or HSV (Hue, Saturation, Value) image to the RGB color space.
+            HSL and HSV are two different models for representing an RGB color in a cylindrical color space.
+            They are useful because they allow you to reason about a color using more intuitive concepts like hue and
+            intensity versus combining red, green and blue values.<br/>
+            <br/>
+            This effect passes through any input alpha values.<br/>
+            <br/>
+            To reverse the behavior of this effect, use <see cref="T:PaintDotNet.Direct2D1.Effects.RgbToHueEffect"/>.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/hue-to-rgb-effect">Hue-to-RGB effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.HueToRgbEffect.Props.InputColorSpace">
+            <summary>
+            Specifies which color space to convert from. The default value is <see cref="F:PaintDotNet.Direct2D1.HueToRgbInputColorSpace.HueSaturationValue"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.InvertEffect">
+            <summary>
+            Inverts the colors of an image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/invert-effect">Invert effect</a>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.LinearTransferEffect">
+            <summary>
+            Use the linear transfer effect to map the color intensities of an image using a linear function
+            created from a list of values you provide for each channel.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/linear-transfer">Linear transfer effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.LinearTransferEffect.Props.ClampOutput">
+            <summary>
+            Whether the effect clamps color values to between 0 and 1 before the effect passes the
+            values to the next effect in the graph. The effect clamps the values before it premultiplies
+            the alpha.
+            If you set this to true the effect will clamp the values.
+            If you set this to false, the effect will not clamp the color values, but other effects and
+            the output surface may clamp the values if they are not of high enough precision.
+            The default value is false.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.LookupTable3DEffect">
+            <summary>
+            A 3D look-up table is a general-purpose effect that is used to encapsulate any 1:1 imaging effect by pre-computing how the effect maps inputs to outputs for a subset of all input values.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/3d-lookup-table-effect">3D lookup table effect</a>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.LookupTable3DEffect.Props.Table">
+            <summary>
+            Specifies the lookup table object.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.LookupTable3DEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the input.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.LuminanceToAlphaEffect">
+            <summary>
+            Use the luminance to alpha effect to set the alpha channel to the luminance of the image and sets
+            the color channels to 0. You can use the output of this effect to make a semitransparent overlay
+            based on the brightness of the input image. Or you can use it to make an image mask.<br/>
+            This effect sets the alpha channel of the output to the luminance of the input image using this
+            color matrix:
+            <code>
+                                              R'  G'  B'      A'
+                                           ┌                     ┐
+                                           │   0   0   0  0.2125 │  R
+                                           │   0   0   0  0.7154 │  G
+             [R' G' B' A'] = [R G B A 1] * │   0   0   0  0.0721 │  B
+                                           │   0   0   0       0 │  A
+                                           │   0   0   0       0 │  1
+                                           └                     ┘
+            </code>
+            <br/>
+            This effect consumes and outputs premultiplied alpha images. The effect won't work on straight
+            alpha images unless they are fully opaque.<br/>
+            <br/>
+            This effect calculates the <i>luminance</i> for the image's color values, which is different than
+            <i>luma</i> which is calculated by <see cref="T:PaintDotNet.Direct2D1.Effects.GrayscaleEffect"/>.
+            See <a href="https://www.geeksforgeeks.org/difference-between-luma-and-luminance/">Difference between Luma and Luminance</a>
+            for more information.<br/>
+            <br/>
+            <b>NOTE:</b> Because images are stored in a gamma-compensated format, before you calculate the
+            luminance for an image you should first perform inverse gamma correction to get the true color
+            values for the image. Since images are normally stored at 2.2 gamma, you can use <see cref="T:PaintDotNet.Direct2D1.Effects.GammaTransferEffect"/>
+            with an exponent of (1/2.2) and then use the output of that effect.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/luminance-to-alpha">Luminance to alpha effect</a>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.MorphologyEffect">
+            <summary>
+            Use the morphology effect to thin or thicken edge boundaries in an image. This effect creates a kernel
+            that is 2 times the Width and Height values you specify. This effect centers the kernel on the pixel
+            it is calculating and returns the maximum value in the kernel (if dilating) or minimum value in the
+            kernel (if eroding).<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/morphology">Morphology effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.MorphologyEffect.Props.Mode">
+            <summary>
+            Specifies the morphology mode. The default value is MorphologyMode.Erode.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.MorphologyEffect.Props.Width">
+            <summary>
+            Size of the kernel in the X direction. The units are in DIPs. Values must be between 1 and 100 inclusive.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.MorphologyEffect.Props.Height">
+            <summary>
+            Size of the kernel in the Y direction. The units are in DIPs. Values must be between 1 and 100 inclusive.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.OpacityEffect">
+            <summary>
+            This effect adjusts the opacity of an image by multiplying the alpha channel of the input by the specified opacity value.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/opacity-effect">Opacity effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.OpacityEffect.Props.Opacity">
+            <summary>
+            The multiplier to the input image's alpha channel. The minimum value is 0.0f and the maximum value is 1.0f.
+            The default value is 1.0f.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.OpacityMetadataEffect">
+            <summary>
+            You can use this effect to mark an area of an input image as opaque, so internal rendering optimizations
+            to the graph are possible.<br/>
+            <br/>
+            <b>NOTE:</b> This effect doesn't modify the image itself to be opaque. It modifies data associated with the
+            image so the renderer assumes the specified region is opaque. Use the MakeOpaqueEffect if you need the alpha
+            channel to actually be opaque.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/opacity-metadata-effect">Opacity metadata effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.OpacityMetadataEffect.Props.InputOpaqueRect">
+            <summary>
+            The portion of the source image that is opaque. The default is the entire input image.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.PerspectiveTransform3DEffect">
+            <summary>
+            Use the 3D perspective transform effect to rotate the image in 3 dimensions as if viewed from a distance.
+            The 3D perspective transform is more convenient than the 3D transform effect, but only exposes a subset
+            of the functionality. You can compute a full 3D transformation matrix and apply a more arbitrary transform
+            matrix to an image using the Transform3DEffect.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/3d-perspective-transform">3D perspective transform effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PerspectiveTransform3DEffect.Props.InterpolationMode">
+            <summary>
+            The interpolation mode the effect uses on the image. There are 5 scale modes that range in quality and speed.
+            The default value is PerspectiveTransform3DInterpolationMode.Linear.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PerspectiveTransform3DEffect.Props.BorderMode">
+            <summary>
+            The mode used to calculate the border of the image, soft or hard.
+            When set to BorderMode.Soft, the effect pads the image with transparent black pixels as it interpolates, resulting in a soft edge.
+            When set to BorderMode.Hard, the effect clamps the output to the size of the input image.
+            The default value is BorderMode.Soft.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PerspectiveTransform3DEffect.Props.Depth">
+            <summary>
+            The distance from the PerspectiveOrigin to the projection plane. The value is specified in DIPs and must be greater than 0.
+            The default value is 1000.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PerspectiveTransform3DEffect.Props.PerspectiveOrigin">
+            <summary>
+            The X and Y location of the viewer in the 3D scene. The value is specified in DIPs.
+            The default value is { 0, 0 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PerspectiveTransform3DEffect.Props.LocalOffset">
+            <summary>
+            A translation the effect performs before it rotates the projection plane. The value is specified in DIPs.
+            The default value is { 0, 0, 0 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PerspectiveTransform3DEffect.Props.GlobalOffset">
+            <summary>
+            A translation the effect performs after it rotates the projection plane. The value is specified in DIPs.
+            The default value is { 0, 0, 0 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PerspectiveTransform3DEffect.Props.RotationOrigin">
+            <summary>
+            The center point of the rotation the effect performs. The value is specified in DIPs.
+            The default value is { 0, 0, 0 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PerspectiveTransform3DEffect.Props.Rotation">
+            <summary>
+            The angles of rotation for each axis. The units are in degrees.
+            The default value is { 0, 0, 0 }.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.PointDiffuseEffect">
+            <summary>
+            Use the point-diffuse lighting effect to create an image that appears to be a non-reflective surface
+            with light scattered in all directions. This effect uses the alpha channel as a height map and lights
+            the image with a point light source.<br/>
+            <br/>
+            The color of the output bitmap is a result of light color, light position, and the surface geometry.<br/>
+            <br/>
+            The alpha channel output for each pixel with diffuse lighting is always 1.0.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/point-diffuse-lighting">Point-diffuse lighting effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PointDiffuseEffect.Props.LightPosition">
+            <summary>
+            The light position of the point light source. The units are in device-independent pixels (DIPs)
+            and are unbounded.
+            The default value is { 0, 0, 0 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PointDiffuseEffect.Props.DiffuseConstant">
+            <summary>
+            The ratio of diffuse reflection to amount of incoming light. This property must be between 0 and
+            10,000 and is unitless.
+            The default value is 1.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PointDiffuseEffect.Props.SurfaceScale">
+            <summary>
+            The scale factor in the Z direction. The surface scale is unitless and must be between 0 and 10,000.
+            The default value is 1.0f.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PointDiffuseEffect.Props.Color">
+            <summary>
+            The color of the incoming light. This is used to compute L[r], L[g], L[b].
+            The default value is { 1, 1, 1 } (white).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PointDiffuseEffect.Props.KernelUnitLength">
+            <summary>
+            The size of an element in the Sobel kernel used to generate the surface normal in the X and Y direction.
+            This property maps to the dx and dy values in the Sobel gradient. This value is defined in
+            (DIPs / Kernel Unit). The effect uses bilinear interpolation to scale the bitmap to match the size of
+            kernel elements.
+            The default value is { 1, 1 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PointDiffuseEffect.Props.ScaleMode">
+            <summary>
+            The interpolation mode the effect uses to scale the image to the corresponding kernel unit length.
+            There are six scale modes that range in quality and speed.
+            The default value is PointDiffuseScaleMode.Linear.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.PointSpecularEffect">
+            <summary>
+            Use the point-specular lighting effect to create an image that appears to be a reflective surface.
+            The effect uses the alpha channel of the image as a height map and a point light source that you
+            position, and calculates the reflection and light according to the specular portion of the Phong
+            lighting model.<br/>
+            <br/>
+            The color of the output bitmap is a result of light color, light position, and the surface geometry.<br/>
+            <br/>
+            The alpha channel output for each pixel with specular lighting is the maximum of the red, green,
+            and blue channel outputs for that pixel.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/point-specular">Point-specular lighting effect</a>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.PosterizeEffect">
+            <summary>
+            The posterize effect reduces the number of unique colors in an image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/posterize-effect">Posterize effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PosterizeEffect.Props.RedValueCount">
+            <summary>
+            An integer value specifying how many evenly spaced steps to divide the red channel range of 0.0 to 1.0 into.
+            For example, a value of 4 generates a table with 4 steps, [0.0, 0.33, 0.67, 1.0]. The allowed range for this
+            property is 2 to 16. The default value is 4.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PosterizeEffect.Props.GreenValueCount">
+            <summary>
+            An integer value specifying how many evenly spaced steps to divide the green channel range of 0.0 to 1.0 into.
+            For example, a value of 4 generates a table with 4 steps, [0.0, 0.33, 0.67, 1.0]. The allowed range for this
+            property is 2 to 16. The default value is 4.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PosterizeEffect.Props.BlueValueCount">
+            <summary>
+            An integer value specifying how many evenly spaced steps to divide the blue channel range of 0.0 to 1.0 into.
+            For example, a value of 4 generates a table with 4 steps, [0.0, 0.33, 0.67, 1.0]. The allowed range for this
+            property is 2 to 16. The default value is 4.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.PremultiplyEffect">
+            <summary>
+            Use this effect to convert an image from unpremultiplied alpha to premultiplied alpha.<br/>
+            <br/>
+            The effect replaces each input pixel <c>P = { R, G, B, A }</c> with <c>P' = { R * A, G * A, B * A, A }</c> in the output.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/premultiply">Premultiply effect</a>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.RgbToHueEffect">
+            <summary>
+            Converts an RGB image to either the HSL (Hue, Saturation, Lightness) or HSV (Hue, Saturation, Value) color spaces.
+            HSL and HSV are two different models for representing an RGB color in a cylindrical color space. They are useful
+            because they allow you to reason about a color using more intuitive concepts like hue and intensity versus
+            combining red, green and blue values.<br/>
+            <br/>
+            This effect normalizes the output data (hue, saturation value for HSV or hue, saturation, lightness for HSL) to
+            the range [0, 1].<br/>
+            <br/>
+            To reverse the behavior of this effect, use the <see cref="T:PaintDotNet.Direct2D1.Effects.HueToRgbEffect"/>.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/rgb-to-hue-effect">RGB-to-hue effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.RgbToHueEffect.Props.OutputColorSpace">
+            <summary>
+            Specifies the color space to convert to. The default value is <see cref="F:PaintDotNet.Direct2D1.RgbToHueOutputColorSpace.HueSaturationValue"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.SaturationEffect">
+            <summary>
+            Use this effect to alter the saturation of an image. The saturation effect is a specialization of the color matrix effect.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/saturation">Saturation effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.SaturationEffect.Props.Saturation">
+            <summary>
+            The saturation of the image. You can set the saturation to a value between 0 and 1. If you set it to 1 the output
+            image is fully saturated. If you set it to 0 the output image is monochrome. The saturation value is unitless.
+            The default value is 0.5f.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ScaleEffect">
+            <summary>
+            Use this effect to scale an image up or down. The effect has six scaling modes: nearest neighbor,
+            linear, cubic, multi-sample linear, anisotropic, and high quality cubic.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/high-quality-scale">Scale effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ScaleEffect.Props.Scale">
+            <summary>
+            The scale amount in the X and Y direction as a ratio of the output size to the input size.<br/>
+            The scale amounts are unitless and must be non-negative.<br/>
+            The minimum value is { 0.01f, 0.01f }. The default value is { 1, 1 }.<br/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ScaleEffect.Props.CenterPoint">
+            <summary>
+            The image scaling center point. The units are in DIPs. Use the center point to scale around
+            a point other than the upper-left corner.
+            The default value is { 0, 0 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ScaleEffect.Props.InterpolationMode">
+            <summary>
+            The interpolation mode the effect uses to scale the image. There are 6 scale modes that range in quality and speed.
+            The default value is ScaleInterpolationMode.Linear.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ScaleEffect.Props.BorderMode">
+            <summary>
+            The mode used to calculate the border of the image, soft or hard.
+            When BorderMode.Soft is used, the effect pads the input image with transparent black pixels for samples outside
+            of the input bounds when it applies the convolution kernel. This creates a soft edge for the image, and in the
+            process expands the output bitmap by the size of the kernel.
+            When BorderMode.Hard is used, the effect extends the input image with a mirror-type border transform for samples
+            outside of the input bounds. The size of the output bitmap is equal to the size of the input bitmap.
+            The default value is BorderMode.Soft.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ScaleEffect.Props.Sharpness">
+            <summary>
+            In the high quality cubic interpolation mode, the sharpness level of the scaling filter as a float between 0 and 1.<br/>
+            The values are unitless. You can use sharpness to adjust the quality of an image when you scale the image down.<br/>
+            The sharpness factor affects the shape of the kernel. The higher the sharpness factor, the smaller the kernel.<br/>
+            The default value is 0.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.SepiaEffect">
+            <summary>
+            Converts an image to sepia tones.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/sepia-effect">Sepia effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.SepiaEffect.Props.Intensity">
+            <summary>
+            A float value indicating the intensity of the sepia effect. The allowed range is 0.0 to 1.0. The default value is 0.5.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.SepiaEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the input image. The default value is AlphaMode.Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ShadowEffect">
+            <summary>
+            Use the shadow effect to generate a shadow from the alpha channel of an image. The shadow is more opaque
+            for higher alpha values and more transparent for lower alpha values. You can set the amount of blur and
+            the color of the shadow.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/drop-shadow">Shadow effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ShadowEffect.Props.BlurStandardDeviation">
+            <summary>
+            The amount of blur to be applied to the alpha channel of the image. You can compute the blur radius of
+            the kernel by multiplying the standard deviation by 3. The units of both the standard deviation and
+            blur radius are DIPs.<br/>
+            This property is the same as the Gaussian Blur standard deviation property.<br/>
+            The range of this value is [0, 250], which corresponds to a blur radius of [0, 750].<br/>
+            The default value is 3.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ShadowEffect.Props.Color">
+            <summary>
+            The color of the drop shadow. You must specify this color in straight alpha (not premultiplied).<br/>
+            The default value is { 0, 0, 0, 1 } (opaque black).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ShadowEffect.Props.Optimization">
+            <summary>
+            The level of performance optimization. The default value is ShadowOptimization.Quality.
+            </summary>
+            <remarks>
+            <b>NOTE:</b> When using this class, the default value of this property is <see cref="F:PaintDotNet.Direct2D1.ShadowOptimization.Quality"/>,
+            not <see cref="F:PaintDotNet.Direct2D1.ShadowOptimization.Balanced"/> as documented by Direct2D. If you create this effect using
+            <see cref="M:PaintDotNet.Direct2D1.IDeviceEffectFactory.CreateEffect(PaintDotNet.Direct2D1.DeviceEffectID@)"/>, the default value will be
+            <see cref="F:PaintDotNet.Direct2D1.ShadowOptimization.Balanced"/>.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.SharpenEffect">
+            <summary>
+            Sharpens the image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/sharpen-effect">Sharpen effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.SharpenEffect.Props.Sharpness">
+            <summary>
+            A float value indicating how much to sharpen the input image. The allowed range is 0.0 to 10.0. The default value is 0.0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.SharpenEffect.Props.Threshold">
+            <summary>
+            The allowed range is 0.0 to 1.0. The default value is 0.0.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.SpotDiffuseEffect">
+            <summary>
+            Use the spot-diffuse lighting effect to create an image that appears to be a non-reflective surface with
+            where the light source is limited to a directed cone of light and the light is scattered in all directions.<br/>
+            <br/>
+            This effect uses the alpha channel as a height map and lights the image with a spot light source.<br/>
+            <br/>
+            The color of the output bitmap is a result of light color, light position, and the surface geometry.<br/>
+            <br/>
+            The alpha channel output for each pixel with diffuse lighting is always 1.0.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/diffuse-lighting">Spot-diffuse lighting effect</a>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.SpotSpecularEffect">
+            <summary>
+            Use the spot-specular lighting effect to create an image that appears to be a reflective surface where the light
+            source is limited to a directed cone of light. This effect uses the alpha channel as a height map and lights the
+            image with a point light source.<br/>
+            <br/>
+            The color of the output bitmap is a result of light color, light position, the direction of the cone and the
+            surface geometry according to the specular portion of the Phong lighting model.<br/>
+            <br/>
+            The alpha channel output for each pixel with specular lighting is the maximum of the red, green, and blue channel
+            outputs for that pixel.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/specular-lighting">Spot-specular lighting effect</a>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.StraightenEffect">
+            <summary>
+            Rotates and optionally scales an image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/straighten-effect">Straighten effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.StraightenEffect.Props.Angle">
+            <summary>
+            A float value that specifies how much the image should be rotated. The allowed range is -45.0 to 45.0. The default value is 0.0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.StraightenEffect.Props.MaintainSize">
+            <summary>
+            A boolean value that specifies whether the image will be scaled such that the original size is maintained without any invalid regions.
+            The default value is true.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.StraightenEffect.Props.ScaleMode">
+            <summary>
+            Specifies the scaling mode that should be use. The default value is StraightenScaleMode.Linear.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.TableTransferEffect">
+            <summary>
+            Use the table transfer effect to map the color intensities of an image using a transfer function created from
+            interpolating a list of values you provide.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/table-transfer">Table transfer effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.TableTransferEffect.Props.ClampOutput">
+            <summary>
+            Whether the effect clamps color values to between 0 and 1 before the effect passes the values to the next
+            effect in the graph. The effect clamps the values before it premultiplies the alpha.
+            If you set this to true the effect will clamp the values.
+            If you set this to false, the effect will not clamp the color values, but other effects and the output
+            surface may clamp the values if they are not of high enough precision.
+            The default value is false.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.TemperatureAndTintEffect">
+            <summary>
+            Adjusts the temperature and tint of the input image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/temperature-and-tint-effect">Temperature and tint effect</a>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.TemperatureAndTintEffect.Props.Temperature">
+            <summary>
+            A float value specifying how much to increase or decrease the temperature of the input image. The allowed range is -1.0 to 1.0. The default value is 0.0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.TemperatureAndTintEffect.Props.Tint">
+            <summary>
+            A float value specifying how much to increase or decrease the tint of the input image. The allowed range is -1.0 to 1.0. The default value is 0.0.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.TileEffect">
+            <summary>
+            Use the tile effect to repeat the specified region of the image.<br/>
+            <br/>
+            This effect generates a logically infinite sized bitmap.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/tile">Tile effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.TileEffect.Props.Rect">
+            <summary>
+            The region of the image to be tiled. The default value is { 0, 0, 100, 100 }.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.TintEffect">
+            <summary>
+            This effect tints the source image by multiplying the source image by the specified color. It has a single input.<br/>
+            <br/>
+            For more information, see <a href="https://learn.microsoft.com/en-us/windows/win32/direct2d/tint-effect">Tint effect</a>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.TintEffect.Props.Color">
+            <summary>
+            Colors from the source image are multiplied by this value.<br/>
+            The default value is { 1, 1, 1, 1 } (opaque white).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.TintEffect.Props.ClampOutput">
+            <summary>
+            Whether or not to clamp the output values to the range [0, 1].<br/>
+            The default value is false.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.Transform3DEffect">
+            <summary>
+            Use the 3D transform effect to apply an arbitrary 4x4 transform matrix to an image.<br/>
+            <br/>
+            This effect applies the matrix (M) you provide to the corner vertices of the source:<br/>
+            <br/>
+            <code>image([ x y z 1 ])</code>
+            using this calculation:
+            <code>[ xr yr zr 1 ] = [ x y z 1 ] * M</code><br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/3d-transform">3D transform effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.Transform3DEffect.Props.InterpolationMode">
+            <summary>
+            The interpolation mode the effect uses on the image. There are 5 scale modes that range in quality and speed.
+            The default value is Transform3DInterpolationMode.Linear.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.Transform3DEffect.Props.BorderMode">
+            <summary>
+            The mode used to calculate the border of the image, soft or hard.
+            When set to BorderMode.Soft, the effect pads the image with transparent black pixels as it interpolates, resulting in a soft edge.
+            When set to BorderMode.Hard, the effect clamps the output to the size of the input image.
+            The default value is BorderMode.Soft.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.Transform3DEffect.Props.TransformMatrix">
+            <summary>
+            A 4x4 transform matrix applied to the projection plane. The individual matrix elements are not bounded and are unitless.
+            The default value is { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 } (identity matrix).
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.TurbulenceEffect">
+            <summary>
+            Use the turbulence effect to generate a bitmap based on the Perlin noise function.<br/>
+            <br/>
+            The turbulence effect has no input image.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/turbulence">Turbulence effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.TurbulenceEffect.Props.Offset">
+            <summary>
+            The coordinates where the turbulence output is generated.
+            The algorithm used to generate the Perlin noise is position dependent, so a different
+            offset results in a different output. This property is not bounded and the units are
+            specified in DIPs.
+            The default value is { 0, 0 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.TurbulenceEffect.Props.Size">
+            <summary>
+            The size of the turbulence output.
+            This property is not bounded and the units are specified in DIPs.
+            The default value is { 0, 0 }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.TurbulenceEffect.Props.BaseFrequency">
+            <summary>
+            The base frequencies in the X and Y direction. This property is a float and must be greater than 0. The units are specified in 1/DIPs.
+            A value of 1 (1/DIPs) for the base frequency results in the Perlin noise completing an entire cycle between two pixels.
+            The ease interpolation for these pixels results in completely random pixels, since there is no correlation between the pixels.
+            A value of 0.1(1/DIPs) for the base frequency, the Perlin noise function repeats every 10 DIPs.
+            This results in correlation between pixels and the typical turbulence effect is visible.
+            The default value is { 0.01f, 0.01f }.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.TurbulenceEffect.Props.Octaves">
+            <summary>
+            The number of octaves for the noise function. This value must be greater than 0.
+            The default value is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.TurbulenceEffect.Props.Seed">
+            <summary>
+            The seed for the pseudo random generator. This property is unbounded, and may be negative.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.TurbulenceEffect.Props.Noise">
+            <summary>
+            Specifies the turbulence noise mode. The default value is TurbulenceNoise.FractalSum.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.TurbulenceEffect.Props.Stitchable">
+            <summary>
+            Turns stitching on or off. The base frequency is adjusted so that output bitmap can be stitched.
+            This is useful if you want to tile multiple copies of the turbulence effect output.
+            When set to true, the output bitmap can be tiled (using the tile effect) without the apperance
+            of seams. The base frequency is adjusted so that the output can be stitched.
+            When set to false, the base frequency is not adjusted, so seams may appear between tiles if the
+            bitmap is tiled.
+            The default value is false.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.UnPremultiplyEffect">
+            <summary>
+            Use this effect to convert an image from premultiplied alpha to unpremultiplied alpha.<br/>
+            <br/>
+            The effect replaces each input pixel <c>P = { R, G, B, A }</c> with <c>P' = { R/A, G/A, B/A, A }</c> in the output.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/unpremultiply">Unpremultiply effect</a>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.VignetteEffect">
+            <summary>
+            Fades the input image at the edges to a user-set color.<br/>
+            <br/>
+            For more information, see <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/vignette-effect">Vignette effect</a>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.VignetteEffect.Props.Color">
+            <summary>
+            The color to fade the image's edges to. The default color is black.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.VignetteEffect.Props.TransitionSize">
+            <summary>
+            A float value that specifies the size of the vignette region as a percentage of the full image region.
+            A size of 0 means the unfaded region is the entire image, while a size of 1 means the faded region is the entire source image.
+            The allowed range is 0.0 to 1.0. The default value is 0.1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.VignetteEffect.Props.Strength">
+            <summary>
+            A float value that specifies how much the vignette color bleeds in for a given transition size.
+            The allowed range is 0.0 to 1.0. The default value is 0.5.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.SvgPathDataExtensions.AddClosePath(PaintDotNet.Direct2D1.ISvgPathData)">
+            <summary>
+            Closes the current subpath.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.SvgPathDataExtensions.AddMove(PaintDotNet.Direct2D1.ISvgPathData,PaintDotNet.Direct2D1.SvgPathCommandSuffix,System.Single,System.Single)">
+            <summary>
+            Starts a new subpath at the coordinate (x y).
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.SvgPathDataExtensions.AddLine(PaintDotNet.Direct2D1.ISvgPathData,PaintDotNet.Direct2D1.SvgPathCommandSuffix,System.Single,System.Single)">
+            <summary>
+            Draws a line to the coordinate (x y).
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.SvgPathDataExtensions.AddCubic(PaintDotNet.Direct2D1.ISvgPathData,PaintDotNet.Direct2D1.SvgPathCommandSuffix,System.Single,System.Single,System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Draws a cubic Bezier curve (x1 y1 x2 y2 x y). The curve ends at (x, y) and is defined by the two control points (x1, y1) and (x2, y2).
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.SvgPathDataExtensions.AddQuadratic(PaintDotNet.Direct2D1.ISvgPathData,PaintDotNet.Direct2D1.SvgPathCommandSuffix,System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Draws a quadratic Bezier curve (x1 y1 x y). The curve ends at (x, y) and is defined by the control point (x1 y1).
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.SvgPathDataExtensions.AddArc(PaintDotNet.Direct2D1.ISvgPathData,PaintDotNet.Direct2D1.SvgPathCommandSuffix,System.Single,System.Single,System.Single,System.Boolean,System.Boolean,System.Single,System.Single)">
+            <summary>
+            Draws an elliptical arc (rx ry x-axis-rotation large-arc-flag sweep-flag x y). The curve ends at (x, y) and is defined by the arc parameters.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.SvgPathDataExtensions.AddHorizontal(PaintDotNet.Direct2D1.ISvgPathData,PaintDotNet.Direct2D1.SvgPathCommandSuffix,System.Single)">
+            <summary>
+            Draws a horizontal line to the coordinate (x).
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.SvgPathDataExtensions.AddVertical(PaintDotNet.Direct2D1.ISvgPathData,PaintDotNet.Direct2D1.SvgPathCommandSuffix,System.Single)">
+            <summary>
+            Draws a vertical line to the coordinate (y).
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.SvgPathDataExtensions.AddCubicSmooth(PaintDotNet.Direct2D1.ISvgPathData,PaintDotNet.Direct2D1.SvgPathCommandSuffix,System.Single,System.Single,System.Single,System.Single)">
+            <summary>
+            Draws a smooth cubic Bezier curve (x2 y2 x y). The curve ends at (x, y) and is defined by the control point (x2, y2).
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.SvgPathDataExtensions.AddQuadraticSmooth(PaintDotNet.Direct2D1.ISvgPathData,PaintDotNet.Direct2D1.SvgPathCommandSuffix,System.Single,System.Single)">
+            <summary>
+            Draws a smooth quadratic Bezier curve ending at (x, y).
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.DirectWrite.DirectWriteFactory.CreateRef">
+            <summary>
+            Creates a reference to the global <see cref="T:PaintDotNet.DirectWrite.IDirectWriteFactory"/> instance.
+            </summary>
+            <remarks>
+            You usually won't need to use this method. Instead, in your plugin, retrieve it as a service with
+            <c>this.Services.GetService&lt;IDirectWriteFactory&gt;()</c>.<br/>
+            For effect plugins it is also available through <c>this.Environment.DirectWriteFactory</c>.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.DirectWrite.FontMap">
+            <summary>
+            Represents a list of font names that can be enumerated, along with events
+            that signal when it has changed, such as when the user installs/deletes a font.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.DirectWrite.FontProperties.DisplayName">
+            <summary>
+            Gets the display name for this font.
+            </summary>
+            <remarks>
+            If using the GDI FontMap, this represents the GDI font face name.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.DirectWrite.FontProperties.FontFamilyName">
+            <summary>
+            Gets the DirectWrite font family name.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.DirectWrite.HotkeyRenderMode.Ignore">
+            <summary>
+            Does not perform any hotkey prefix processing.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.DirectWrite.HotkeyRenderMode.Show">
+            <summary>
+            Processes hotkey prefixes, and renders them.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.DirectWrite.HotkeyRenderMode.Hide">
+            <summary>
+            Processes hotkey prefixes, but does not render them.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.DirectWrite.InactiveFontsList">
+            <summary>
+            Maintains a list of font names which have been hidden in the Windows 7 Fonts Control Panel.
+            </summary>
+            <remarks>
+            Based on details found here: http://visualstudiomagazine.com/articles/2010/10/14/honoring-hidden-fonts.aspx
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.DirectWrite.SizedFontProperties.DisplayName">
+            <summary>
+            Gets the display name for this font.
+            </summary>
+            <remarks>
+            If using the GDI FontMap, this represents the GDI font face name.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.DirectWrite.SizedFontProperties.FontFamilyName">
+            <summary>
+            Gets the DirectWrite font family name.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.DirectWrite.TextMeasurement.Width">
+            <summary>
+            The layout width of the text block, relative from an alignment point of (0,0).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.DirectWrite.TextMeasurement.Height">
+            <summary>
+            The layout height of the text block, relative from an alignment point of (0,0).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.DirectWrite.TextMeasurement.Size">
+            <summary>
+            The layout size of the text block, relative from an alignment point of (0,0).
+            </summary>
+            <remarks>
+            This is a convenience property that combines Width and Height.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.DirectWrite.TextMeasurement.OverhangLeft">
+            <summary>
+            The amount of overhang from the left edge of the alignment rectangle.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.DirectWrite.TextMeasurement.OverhangTop">
+            <summary>
+            The amount of overhang from the top edge of the alignment rectangle.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.DirectWrite.TextMeasurement.OverhangRight">
+            <summary>
+            The amount of overhang from the right edge of the alignment rectangle.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.DirectWrite.TextMeasurement.OverhangBottom">
+            <summary>
+            The amount of overhang from the bottom edge of the alignment rectangle.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.DirectWrite.TextMeasurement.BlackBoxBounds">
+            <summary>
+            The black box rectangle for the text block. This is the rectangle that is affected by rendering,
+            and includes the overhang metrics.
+            </summary>
+            <remarks>
+            This is a convenience function that takes an alignment point of (0,0), the width and height, and
+            then adds in the overhang metrics for each edge to calculate the bounding black box. Due to
+            pixel snapping, grid fitting, or hinting, this may not exactly match the pixel boundaries for
+            rendering.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.DirectWrite.TextMeasurement.SafeClipBounds">
+            <summary>
+            Gets a safe clipping rectangle for this block of text useful for rendering purposes.
+            </summary>
+            <remarks>
+            This differs from the black box in a few ways. It ignores negative overhangs, and it also
+            adds a small amount of padding around the text to ensure that things like pixel snapping,
+            grid fitting, and hinting do not adversely affect clipping.
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Imaging.BitmapExtendMode.Clamp">
+            <summary>
+            <inheritdoc cref="F:TerraFX.Interop.DirectX.D2D1_BORDER_EDGE_MODE.D2D1_BORDER_EDGE_MODE_CLAMP"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Imaging.BitmapExtendMode.Zero">
+            <summary>
+            Fills the extended region with zeros. This is usually transparent black for pixel
+            formats that support alpha, or opaque black for pixel formats that do not support
+            alpha.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Imaging.BitmapSourceExtensions.Bounds(PaintDotNet.Imaging.IBitmapSource)">
+            <summary>
+            Returns a rectangle who's value is <c>(x=0, y=0, width=source.Width, height=source.Height)</c>
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Imaging.BitmapSourceExtensions.CreateClipper``1(PaintDotNet.Imaging.IBitmapSource{``0},PaintDotNet.Rendering.RectInt32,PaintDotNet.Imaging.BitmapExtendMode)">
+            <summary>
+            Creates a clipped bitmap with a given extend mode. The clipping rect may extend outside of the source bounds.
+            </summary>
+            <param name="source">The bitmap source to clip.</param>
+            <param name="sourceRect">
+            A rectangle, in source coordinate space, that defines the size of the output bitmap. This rectangle
+            may extend outside of the source bitmap's bounds (including negative coordinates). Pixels that are
+            within the source bounds will be copied from the source, while pixels outside of the source bounds
+            will be calculated based on the <paramref name="extendMode"/> parameter.
+            </param>
+            <param name="extendMode">Specifies how pixels outside of the source bitmap's bounds are calculated.</param>
+            <returns>The clipped bitmap.</returns>
+        </member>
+        <member name="T:PaintDotNet.Imaging.BmpEncoderOptions">
+            <summary>
+            The keys in this class are used to set property values in an <see cref="T:PaintDotNet.ComponentModel.IPropertyBag2"/>
+            when working with the BMP <see cref="T:PaintDotNet.Imaging.IBitmapEncoder"/>'s options.<br/>
+            <br/>
+            See <a href="https://learn.microsoft.com/en-us/windows/win32/wic/bmp-format-overview">BMP Format Overview</a>
+            for more information.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Imaging.HeifEncoderOptions">
+            <summary>
+            The keys in this class are used to set property values in an <see cref="T:PaintDotNet.ComponentModel.IPropertyBag2"/>
+            when working with the HEIF <see cref="T:PaintDotNet.Imaging.IBitmapEncoder"/>'s options.<br/>
+            for more information.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Imaging.HeifEncoderOptions.ImageQuality">
+            <summary>
+            The image quality. Higher values result in better quality, but longer compression times.<br/>
+            <br/>
+            The range of this value is [0, 1].
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Imaging.ImagingFactory.CreateRef">
+            <summary>
+            Creates a reference to the global <see cref="T:PaintDotNet.Imaging.IImagingFactory"/> instance.
+            </summary>
+            <remarks>
+            You usually won't need to use this method. Instead, in your plugin, retrieve it as a service with
+            <c>this.Services.GetService&lt;IImagingFactory&gt;()</c>.<br/>
+            For effect plugins it is also available through <c>this.Environment.ImagingFactory</c>.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Imaging.ImagingFactoryExtensions.CreateOverwriteMaskBitmap(PaintDotNet.Imaging.IImagingFactory,PaintDotNet.Imaging.IBitmapSource{PaintDotNet.Imaging.ColorBgra32},PaintDotNet.Imaging.IBitmapSource{PaintDotNet.Imaging.ColorBgra32},PaintDotNet.Imaging.IBitmapSource{PaintDotNet.Imaging.ColorAlpha8})">
+            <summary>
+            Creates a bitmap that renders a per-pixel crossfade between two bitmaps, using a third
+            bitmap as a mask for the second bitmap.
+            </summary>
+            <param name="factory">The factory.</param>
+            <param name="srcUnder">The first source ("under") bitmap.</param>
+            <param name="srcOver">The second source ("over") bitmap.</param>
+            <param name="srcOverMask">
+            The mask for the second source bitmap. A value of 0 will result in the output being equal
+            to srcUnder, and a value of 255 will result in the output being equal to srcOver. Values
+            in between will result in a crossfaded blend between srcUnder and srcOver.</param>
+            <returns>A bitmap that renders a per-pixel crossfade between srcUnder and srcOver.</returns>
+        </member>
+        <member name="M:PaintDotNet.Imaging.ImagingFactoryExtensions.CreateBitmapClipper``1(PaintDotNet.Imaging.IImagingFactory,PaintDotNet.Imaging.IBitmapSource{``0},PaintDotNet.Rendering.RectInt32,PaintDotNet.Imaging.BitmapExtendMode)">
+            <summary>
+            Creates a clipped bitmap with a given extend mode. The clipping rect may extend outside of the source bounds.
+            </summary>
+            <param name="factory">The factory.</param>
+            <param name="source">The bitmap source to clip.</param>
+            <param name="sourceRect">
+            A rectangle, in source coordinate space, that defines the size of the output bitmap. This rectangle
+            may extend outside of the source bitmap's bounds (including negative coordinates). Pixels that are
+            within the source bounds will be copied from the source, while pixels outside of the source bounds
+            will be calculated based on the <paramref name="extendMode"/> parameter.
+            </param>
+            <param name="extendMode">Specifies how pixels outside of the source bitmap's bounds are calculated.</param>
+            <returns>The clipped bitmap.</returns>
+        </member>
+        <member name="T:PaintDotNet.Imaging.ImagingFactoryWrapper">
+            <summary>
+            A wrapper for IImagingFactory that provides detours to improved or bugfixed functionality.
+            Note that accessing the COM object will bypass any detours.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Imaging.Indexed8ToNFormatConverter">
+            <summary>
+            Converts Indexed8 to Indexed4, Indexed2, or Indexed1.
+            </summary>
+            <remarks>
+            Working with indexed formats other than Indexed8 is tricky because of all the bit shifting and whatnot.
+            This class allows you to produced Indexed4, 2, or 1 output with the coding simplicity of Indexed8.
+            Also worth noting is that WIC's format converters for &lt;8-bit seem to be buggy, and should be avoided.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Imaging.JpegEncoderOptions">
+            <summary>
+            The keys in this class are used to set property values in an <see cref="T:PaintDotNet.ComponentModel.IPropertyBag2"/>
+            when working with the JPEG <see cref="T:PaintDotNet.Imaging.IBitmapEncoder"/>'s options.<br/>
+            <br/>
+            See <a href="https://learn.microsoft.com/en-us/windows/win32/wic/jpeg-format-overview">JPEG Format Overview</a>
+            for more information.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Imaging.JpegEncoderOptions.BitmapTransform">
+            <summary>
+            Specifies how the image is to be transformed during image decoding.<br/>
+            <br/>
+            The default value is <see cref="F:PaintDotNet.Imaging.BitmapTransformOptions.None"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Imaging.JpegEncoderOptions.ImageQuality">
+            <summary>
+            Specifies the desired image fidelity. 0.0 indicates the lowest possible fidelity and 1.0 specifies the highest fidelity.<br/>
+            <br/>
+            The range of this value is [0, 1]. The default value is 0.9.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Imaging.JpegEncoderOptions.JpegYCrCbSubsampling">
+            <summary>
+            Specifies the subsampling ratio to use for YCrCb encoding.<br/>
+            <br/>
+            The default value is <see cref="F:PaintDotNet.Imaging.JpegYCrCbSubsamplingOption.Subsample420"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Imaging.JpegEncoderOptions.SuppressApp0">
+            <summary>
+            Specifies whether to suppress the write of App0 metadata while encoding the image data.<br/>
+            <br/>
+            The default value is <c>false</c>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Imaging.PngEncoderOptions">
+            <summary>
+            The keys in this class are used to set property values in an <see cref="T:PaintDotNet.ComponentModel.IPropertyBag2"/>
+            when working with the PNG <see cref="T:PaintDotNet.Imaging.IBitmapEncoder"/>'s options.<br/>
+            <br/>
+            See <a href="https://learn.microsoft.com/en-us/windows/win32/wic/png-format-overview">PNG Format Overview</a>
+            for more information.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Imaging.PngEncoderOptions.InterlaceOption">
+            <summary>
+            Specifies whether to encode the image data as interlaced.<br/>
+            <br/>
+            The default value is <c>false</c>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Imaging.PngEncoderOptions.FilterOption">
+            <summary>
+            Specifies the filter option to use for image compression.<br/>
+            <br/>
+            The default value is <see cref="F:PaintDotNet.Imaging.PngFilterOption.Unspecified"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Imaging.TiffEncoderOptions">
+            <summary>
+            The keys in this class are used to set property values in an <see cref="T:PaintDotNet.ComponentModel.IPropertyBag2"/>
+            when working with the TIFF <see cref="T:PaintDotNet.Imaging.IBitmapEncoder"/>'s options.<br/>
+            <br/>
+            See <a href="https://learn.microsoft.com/en-us/windows/win32/wic/tiff-format-overview">TIFF Format Overview</a>
+            for more information.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Imaging.WmpEncoderOptions">
+            <summary>
+            The keys in this class are used to set property values in an <see cref="T:PaintDotNet.ComponentModel.IPropertyBag2"/>
+            when working with the WMP (aka HD Photo) <see cref="T:PaintDotNet.Imaging.IBitmapEncoder"/>'s options.<br/>
+            <br/>
+            See <a href="https://learn.microsoft.com/en-us/windows/win32/wic/hdphoto-format-overview">HD Photo Format Overview</a>
+            for more information.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Interop.RegistryNotifyFilter.Name">
+            <summary>
+            Notify if a subkey is added or deleted.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Interop.RegistryNotifyFilter.Attributes">
+            <summary>
+            Notify of changes to the attributes of the key, such as the security descriptor information.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Interop.RegistryNotifyFilter.LastSet">
+            <summary>
+            Notify of changes to a value of the key. This can include adding or deleting a value, or changing an existing value.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Interop.RegistryNotifyFilter.Security">
+            <summary>
+            Notify of changes to the security descriptor of the key.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Interop.RegistryNotifyFilter.WatchSubTree">
+            <summary>
+            Notify of changes to any subtree of the key as well.
+            </summary>
+        </member>
+    </members>
+</doc>

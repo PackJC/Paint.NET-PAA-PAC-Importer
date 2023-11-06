@@ -1,0 +1,296 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PaintDotNet.UI</name>
+    </assembly>
+    <members>
+        <member name="T:PaintDotNet.ObjectModel.BasicObject">
+            <summary>
+            A basic object. Introduces sub-property change notifications. That is, property changed
+            notifications on sub-objects, where sub-objects are Freezable objects assigned to
+            dependency properties.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.ObjectModel.HierarchicalObject">
+            <summary>
+            A hierarchical object. Introduces the object tree, property inheritance, and routed events.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.ObjectModel.HierarchicalProperty.GetInheritedEffectiveValue(PaintDotNet.ObjectModel.HierarchicalObject,System.Windows.DependencyProperty)">
+            <summary>
+            Returns the effective value that is being inherited. Returns DependencyProperty.UnsetValue 
+            if there are no HierarchicalObjects along the parent chain that host the inheriting property, 
+            or if GetHierarchyParent() is null.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.ObjectModel.HierarchicalProperty.GetInheritedLocalValue(PaintDotNet.ObjectModel.HierarchicalObject,System.Windows.DependencyProperty)">
+            <summary>
+            Returns the local (uncoerced) value that is being inherited, or DependencyProperty.UnsetValue if no 
+            parent up to the root has a local value set or if there's no HierarchyParent to inherit from.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.ObjectModel.HierarchicalProperty.GetTargetEffectiveValue(PaintDotNet.ObjectModel.HierarchicalObject,System.Windows.DependencyProperty,System.Object,System.Windows.CoerceValueCallback)">
+            <summary>
+            Gets what the effective value for a property should be. This cannot be determined correctly from within a 
+            CoerceValueCallback since ReadLocalValue() will not yet return the 'new' local value, if that's what's being set.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.ObjectModel.SubPropertyChangedCallback">
+            <summary>
+            Called when target.Property.SubProperty changes. (Does not tell you which subproperty changed.)
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.UI.CompositionTarget">
+            <summary>
+            Manages a Visual tree and rendering support.
+            </summary>
+            <remarks>
+            A Visual can be connected to multiple CompositionTargets.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.UI.CompositionTarget.MatrixToDevice">
+            <summary>
+            Gets a matrix that can be used to transform coordinates from this target to the rendering destination device.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.UI.CompositionTarget.MatrixFromDevice">
+            <summary>
+            Gets a matrix that can be used to transform coordinates from the rendering destination device to this target.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.UI.CompositionTarget.GetTargetRenderBounds(PaintDotNet.UI.Visual)">
+            <summary>
+            Gets the bounding box for the Visual's clipped rendering area within the coordinate space of this CompositionTarget.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.UI.CompositionTarget.GetMatrixToVisual(PaintDotNet.UI.Visual)">
+            <summary>
+            Gets a matrix that transforms from this CompositionTarget's coordinate space to the specified Visual's coordinate space.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.UI.CompositionTarget.GetMatrixFromVisual(PaintDotNet.UI.Visual)">
+            <summary>
+            Gets a matrix that transforms from the specified Visual's coordinate space to this CompositionTarget's coordinate space.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.UI.Input.Cursors.None">
+            <summary>
+            Gets a special cursor that is invisible.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.UI.Input.FocusManager.GetFocusScope(PaintDotNet.UI.UIElement)">
+            <summary>
+            Gets the UIElement that serves as the focus scope for the given element.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.UI.Input.FocusManager.GetIsFocusScope(PaintDotNet.UI.UIElement)">
+            <summary>
+            Gets a flag indicating whether the given element is a focus scope.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.UI.Input.PointerDevice">
+            <summary>
+            Manages pointer input and state for a PresentationSource.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.UI.Media.ColorInterpolationSpace.Linear">
+            <summary>
+            Interpolation is performed in the linear-gamma space. (gamma value of 1.0)
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.UI.Media.ColorInterpolationSpace.Srgb">
+            <summary>
+            Interpolation is performed in the standard RGB (sRGB) space. (gamma value of 2.2)
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.UI.Media.DeviceBitmap.Invalidate">
+            <summary>
+            Call this when the contents of the BitmapSource have changed.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.UI.Media.Drawing.Bounds">
+            <summary>
+            Gets the axis-aligned bounds of the drawing's contents.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.UI.Media.FromDirect2DGeometrySink">
+            <summary>
+            Streams a Direct2D IGeometry into a new PaintDotNet.UI.Media.PathGeometry
+            </summary>
+            <remarks>
+            Any bugfixes made here should be synchronized with <see cref="T:PaintDotNet.Direct2D1.Direct2DToWpfGeometrySink"/>.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.UI.Media.IContainerGeometry">
+            <summary>
+            An interface for a Geometry-derived class that wraps an existing Geometry and applies
+            some kind of functional transformation to it (or not). Examples include ContainerGeometry,
+            FlattenedGeometry, OutlinedGeometry, and WidenedGeometry.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.UI.Media.RotateTransform.Angle">
+            <summary>
+            Gets or sets the angle of rotation, in degrees.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.UI.Media.SkewTransform.AngleX">
+            <summary>
+            Gets or sets the x-axis skew angle, which is measured in degrees counterclockwise from the y-axis.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.UI.Media.SkewTransform.AngleY">
+            <summary>
+            Gets or sets the y-axis skew angle, which is measured in degrees counterclockwise from the x-axis.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.UI.Media.Transform.Inverse">
+            <summary>
+            Gets the inverse of this transformation, if it exists, or null if it doesn't.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.UI.Media.Transform.Value">
+            <summary>
+            Gets the current transformation as a Matrix3x2Double value.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.UI.PresentationSource">
+            <summary>
+            Manages a Visual tree's input and UI support.
+            </summary>
+            <remarks>
+            A Visual may only be connected to 1 PresentationSource.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.UI.RoutedEventArgs.StopRouting">
+            <summary>
+            This method will prevent other recipients along the routing path from receiving the event,
+            without having to mark it as handled.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.UI.RoutingStrategy.Tunnel">
+            <summary>
+            The routed event uses a tunneling strategy, where the event instance routes downwards through the tree, from root to source element.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.UI.RoutingStrategy.Bubble">
+            <summary>
+            The routed event uses a bubbling strategy, where the event instance routes upwards through the tree, from event source to root.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.UI.RoutingStrategy.Direct">
+            <summary>
+            The routed event does not route through an element tree.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.UI.SystemParameters.CursorScale">
+            <summary>
+            Gets the scale of the cursor, as configured in Windows Settings. This scale should be
+            multiplied by the DPI to get the final scale to use.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.UI.SystemParameters.KeyboardDelay">
+            <summary>
+            Gets the keyboard repeat-delay setting, which is a value in the range from 0 (approximately 250 milliseconds delay) through 3 (approximately 1 second delay).
+            The actual delay may vary depending on the hardware.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.UI.SystemParameters.KeyboardDelayMs">
+            <summary>
+            Gets the keyboard repeat-delay setting in milliseconds. This should be 250, 500, 750, or 1000, although the actual delay may vary depending on the hardware.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.UI.SystemParameters.KeyboardSpeed">
+            <summary>
+            Gets the keyboard repeat-speed setting, which is a value in the range from 0 (approximately 2.5 repetitions per second) through 31 (approximately 30 repetitions per second).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.UI.SystemParameters.KeyboardSpeedHz">
+            <summary>
+            Gets the approximate number of times, per second, that a keyboard input key will be repeated when it is held down.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.UI.UIElement">
+            <summary>
+            Base class for elements which have a visual appearance and which can process base input in a user interface.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.UI.UIElement.Focus">
+            <summary>
+            Attempts to set focus to this element.
+            </summary>
+            <returns>true if keyboard focus and logical focus were set to this element; false if only logical 
+            focus was set to this element, or if the call to this method did not force the focus to change.</returns>
+        </member>
+        <member name="M:PaintDotNet.UI.Visual.GetMatrixToDescendant(PaintDotNet.UI.Visual)">
+            <summary>
+            Gets a matrix that transforms from this Visual's coordinate space to the specified Visual descendant's coordinate space.
+            </summary>
+            <param name="descendant"></param>
+            <returns></returns>
+        </member>
+        <member name="M:PaintDotNet.UI.Visual.GetMatrixToAncestor(PaintDotNet.UI.Visual)">
+            <summary>
+            Gets a matrix that transforms from this Visual's coordinate space to the specified Visual ancestor's coordinate space.
+            </summary>
+            <param name="ancestor"></param>
+            <returns></returns>
+        </member>
+        <member name="P:PaintDotNet.UI.Visual.MatrixFromParent">
+            <summary>
+            Gets a matrix that transforms from the VisualParent's coordinate space to this Visual's coordinate space.
+            </summary>
+            <remarks>
+            The matrix returned from this property becomes invalid whenever the VisualOffset or VisualTransform
+            properties change, or when the VisualTransform changes.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.UI.Visual.MatrixToParent">
+            <summary>
+            Gets a matrix that transforms from this Visual's coordinate space to the VisualParent's coordinate space.
+            </summary>
+            <remarks>
+            The matrix returned from this property becomes invalid whenever the VisualOffset or VisualTransform
+            properties change, or when the VisualTransform changes.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.UI.Visual.HitTestLocal(PaintDotNet.Rendering.Point2Double)">
+            <summary>
+            Tests the given point, specified in coordinates relative to this Visual
+            (without VisualOffset and VisualTransform), to see whether it is within
+            this visual. This method does not consider any child Visuals.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.UI.Visual.GetDynamicWorldVisualClip">
+            <summary>
+            Returns a Geometry that provides this Visual's clipping mask in the coordinate space of the root
+            Visual. This Geometry is 'dynamic' because it uses data binding to ensure it always has the
+            latest data. It is cached by the Visual, and may be cached by the caller, but it must be discarded
+            whenever the VisualParent changes.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.UI.VisualClippingGeometry">
+            <summary>
+            The same as CombinedGeometry with Mode=Intersect, except it uses some more common-sense results when
+            calculating the intersection of geometries against 'infinity'.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.UI.VisualCollection">
+            <summary>
+            Allows you to manage a Visual's children using an IList.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.UI.VisualCollectionBase`1">
+            <summary>
+            Allows you to manage a Visual's children using an IList.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.UI.VisualExtensions.EnumerateVisualTree(PaintDotNet.UI.Visual,PaintDotNet.UI.VisualTreeEnumerationOrder)">
+            <summary>
+            Enumerates the visual tree of a Visual element in the order given.
+            </summary>
+            <remarks>
+            Enumeration always includes the visual passed in. It will either be the first or the last element in the sequence, depending on the requested enumeration order.
+            </remarks>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,1127 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PaintDotNet.Effects.Gpu</name>
+    </assembly>
+    <members>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnAddNoiseEffect">
+            <summary>
+            A Direct2D effect that renders Paint.NET's Add Noise effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnAddNoiseEffect.Props.Intensity">
+            <summary>
+            Specifies the intensity of the noise.<br/>
+            The range is [0, 1] which corresponds to the UI's range of [0, 100].<br/>
+            The default is 0.64.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnAddNoiseEffect.Props.Saturation">
+            <summary>
+            Specifies the saturation of the noise.<br/>
+            The range is [0, 4] which corresponds to the UI's range of [0, 400].>br/>
+            The default is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnAddNoiseEffect.Props.Coverage">
+            <summary>
+            Specifies the coverage of the noise.<br/>
+            The range is [0, 1] which corresponds to the UI's range of [0, 100].<br/>
+            The default is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnAddNoiseEffect.Props.Seed">
+            <summary>
+            Specifies a seed number to use for random number generation.
+            </summary>
+            <remarks>
+            Typically the Seed property is user configurable with a "Reseed" or "Randomize" button that just increments
+            its value, while SeedInstance is generated once per effect instance. If two effect instances have the same
+            value for both seed properties, rendering output will be identical for both.<br/>
+            Sample maps that are participating in multisampled rendering for the same effect instance should all
+            have the same values for Seed and SeedInstance.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnAddNoiseEffect.Props.SeedInstance">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Effects.Gpu.PdnAddNoiseEffect.Props.Seed" /> The default value is automatically generated.
+            </summary>
+            <remarks>
+            <inheritdoc cref="P:PaintDotNet.Effects.Gpu.PdnAddNoiseEffect.Props.Seed" />
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnAddNoiseEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and output.<br/>
+            If set to Premultiplied, the input will be unpremultiplied, noise will be added, and then the result will be premultiplied.<br/>
+            If set to Straight, noise will be added without any alpha space conversion.<br/>
+            The default is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnBokehEffect">
+            <summary>
+            A Direct2D effect that implements Paint.NET's Bokeh blur.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBokehEffect.Props.Radius">
+            <summary>
+            The radius of the bokeh effect. A value of 0 will disable the blur effect.<br/>
+            The valid range is [0, 300], the default is 25.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBokehEffect.Props.Quality">
+            <summary>
+            The quality of the bokeh effect. Performance is affected linearly. For example, a quality of 6 takes
+            about twice as long to render as a quality value of 3.<br/>
+            The range is [1, 10] and the default is 3.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBokehEffect.Props.EdgeMode">
+            <summary>
+            Specifies how samples outside the bounds of the input image are calculated.<br/>
+            If this value is Transparent, the effect pads the image with transparent pixels as it applies the blur kernel,
+            resulting in a soft edge. The output will be larger than the input by approximately the blur radius, in pixels.
+            If set to another edge mode, the effect clamps the output to the size of the input image.<br/>
+            The default value is Mirror.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBokehEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and output. The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnBrightnessContrastEffect">
+            <summary>
+            A Direct2D effect that operates the same as Paint.NET's built-in Brightness &amp; Contrast adjustment.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBrightnessContrastEffect.Props.Brightness">
+            <summary>
+            Specifies the amount to adjust the input's brightness by. The range of this property is
+            [-1, +1], which corresponds to the UI's range of [-100, +100]. The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBrightnessContrastEffect.Props.Contrast">
+            <summary>
+            Specifies the amount to adjust the input's contrast by. The range of this property is
+            [-1, +1], which corresponds to the UI's range of [-100, +100]. The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBrightnessContrastEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input image, and for the output.<br/>
+            The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBrightnessContrastEffect.Props.InputGamma">
+            <summary>
+            Indicates the gamma of the input image, and for the output. If the input image is known to be linear, then the
+            <see cref="F:PaintDotNet.Effects.Gpu.PdnBrightnessContrastInputGamma.Linear"/> value should be used so that the correct calculations are used.<br/>
+            The default value is <see cref="F:PaintDotNet.Effects.Gpu.PdnBrightnessContrastInputGamma.Srgb"/>.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Effects.Gpu.PdnBrightnessContrastInputGamma.Linear">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.HighlightsAndShadowsInputGamma.Linear"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Effects.Gpu.PdnBrightnessContrastInputGamma.Srgb">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.HighlightsAndShadowsInputGamma.Srgb"/>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnBulgeEffect">
+            <summary>
+            Provides Paint.NET's Bulge effect as a <see cref="T:PaintDotNet.Direct2D1.DynamicEffect"/> that can be used
+            for rendering with Direct2D.
+            </summary>
+            <remarks>
+            <inheritdoc />
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Effects.Gpu.PdnBulgeEffect.#ctor(PaintDotNet.Direct2D1.IDeviceContext)">
+            <summary>
+            <inheritdoc />
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBulgeEffect.Props.Strength">
+            <summary>
+            Gets or sets the strength of the bulge effect. The range is [-3, +1], and the default value is 0.45.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBulgeEffect.Props.Center">
+            <summary>
+            Gets or sets the center of the bulge. This is typically set to the center point of the InputRect
+            or the output/clip rect. The default is (500, 500).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBulgeEffect.Props.Diameter">
+            <summary>
+            Gets or sets the diameter of the bulge. This is typically set to the minimum of the width and
+            height of either the InputRect or the output/clip rect. The minimum value is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBulgeSampleMap.Props.Strength">
+            <summary>
+            Specifies the strength of the bulge effect. The range is [-3, +1], and the default is 0.45.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBulgeSampleMap.Props.Center">
+            <summary>
+            Specifies the offset of the bulge's center, in pixels.<br/>
+            To center the bulge you should set this to the center point of the desired output rectangle.<br/>
+            The default value is (0,0) which produces a bulge centered at the top-left.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnBulgeSampleMap.Props.Diameter">
+            <summary>
+            Specifies the diameter of the edge of the bulge. This is typically set to the minimum of the
+            width and height of either the source image or the output/clip rectangle.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnCloudsEffect">
+            <summary>
+            A Direct2D effect that renders Paint.NET's Clouds effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCloudsEffect.Props.Size">
+            <summary>
+            The size of the clouds. This is not a clipping rect, but rather sets the base scaling.
+            This is typically set to the size of the output region. The default is (1000, 1000).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCloudsEffect.Props.Color1">
+            <summary>
+            Specifies the primary color of the clouds. The default is black.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCloudsEffect.Props.Color2">
+            <summary>
+            Specifies the secondary color of the clouds. The default is white.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCloudsEffect.Props.Scale">
+            <summary>
+            Specifies the scaling for the clouds. The range is [2, 1000]. The default value is 250.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCloudsEffect.Props.Power">
+            <summary>
+            Specifies how much detail is in the clouds. The range is [0, 1] and the default is 0.5.
+            This corresponds to the "Roughness" parameter in the Paint.NET Clouds UI.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCloudsEffect.Props.Seed">
+            <summary>
+            Specifies a seed number to use for random number generation. The default value is 0.
+            </summary>
+            <remarks>
+            Typically the Seed property is user configurable with a "Reseed" button that just increments its value,
+            while SeedInstance is generated once per effect instance. If two effect instances have the same
+            value for both seed properties, rendering output will be identical for both.<br/>
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCloudsEffect.Props.SeedInstance">
+            <summary>
+            Specifies a seed number to use for random number generation. The default value is auto-generated.
+            </summary>
+            <remarks>
+            <inheritdoc cref="P:PaintDotNet.Effects.Gpu.PdnCloudsEffect.Props.Seed" />
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCloudsEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the output. The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnCrystalizeEffect">
+            <summary>
+            Provides Paint.NET's Crystalize effect as a <see cref="T:PaintDotNet.Direct2D1.DynamicEffect"/> that can be used
+            for rendering with Direct2D.
+            </summary>
+            <remarks>
+            <inheritdoc />
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Effects.Gpu.PdnCrystalizeEffect.#ctor(PaintDotNet.Direct2D1.IDeviceContext)">
+            <summary>
+            <inheritdoc />
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCrystalizeEffect.Props.CellSize">
+            <summary>
+            Gets or sets the size of each cell. The range is [2, 250], and the default is 8.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCrystalizeEffect.Props.Seed">
+            <summary>
+            Gets or sets a seed for random number generation.
+            </summary>
+            <remarks>
+            <inheritdoc cref="P:PaintDotNet.Effects.Gpu.PdnCrystalizeSampleMap.Props.Seed" />
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCrystalizeEffect.Props.SeedInstance">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Effects.Gpu.PdnCrystalizeEffect.Props.Seed" /> The default value is auto-generated at instantiation time.
+            </summary>
+            <remarks>
+            <inheritdoc cref="P:PaintDotNet.Effects.Gpu.PdnCrystalizeEffect.Props.Seed" />
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCrystalizeSampleMap.Props.CellSize">
+            <summary>
+            Specifies the size of each crystal cell. The range is [2, 250], and the default is 8.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCrystalizeSampleMap.Props.Seed">
+            <summary>
+            Specifies a seed number to use for random number generation.<br/>
+            </summary>
+            <remarks>
+            Typically the Seed property is user configurable with a "Reseed" button that just increments its value,
+            while SeedInstance is generated once per effect instance. If two effect instances have the same
+            value for both seed properties, rendering output will be identical for both.<br/>
+            Sample maps that are participating in multisampled rendering for the same effect instance should all
+            have the same values for Seed and SeedInstance.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnCrystalizeSampleMap.Props.SeedInstance">
+            <summary>
+            Specifies a seed number to use for random number generation.<br/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="P:PaintDotNet.Effects.Gpu.PdnCrystalizeSampleMap.Props.Seed" />
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnDentsEffect">
+            <summary>
+            Provides Paint.NET's Dents effect as a <see cref="T:PaintDotNet.Direct2D1.DynamicEffect"/> that can be used
+            for rendering with Direct2D.
+            </summary>
+            <remarks>
+            <inheritdoc />
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Effects.Gpu.PdnDentsEffect.#ctor(PaintDotNet.Direct2D1.IDeviceContext)">
+            <summary>
+            <inheritdoc />
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.Scale">
+            <summary>
+            Specifies the overall scale of the effect rendering. This is usually set to
+            the minimum of the width/height of InputRect or the output/clip rect.<br/>
+            The default value is 1024.
+            </summary>
+            <remarks>
+            This effective scale is <see cref="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.Scale"/> * <see cref="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseScale"/>. Usually Scale is set
+            depending on the input/output rectangles, and NoiseScale can be user-configurable.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseScale">
+            <summary>
+            Specifies the scale of the noise. The default value is 25.
+            </summary>
+            <remarks>
+            This effective scale is <see cref="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.Scale"/> * <see cref="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseScale"/>. Usually Scale is set
+            depending on the input/output rectangles, and NoiseScale can be user-configurable.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseRefraction">
+            <summary>
+            Specifies the amount of refraction in the noise. The default value is 50.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseDetail">
+            <summary>
+            Specifies the amount of detail in the noise. The default value is 10.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseTurbulence">
+            <summary>
+            Specifies the amount of turbulence in the noise. The default is 10.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseCenter">
+            <summary>
+            Specifies the center of rotation for the noise, as configured by the <see cref="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseAngle"/> property.<br/>
+            The default is (512, 512), which is half of the default Scale.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseAngle">
+            <summary>
+            Specifies the rotation for the noise. Rotation is performed around the <see cref="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseCenter"/>.<br/>
+            The default is 137.2.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseSeed">
+            <summary>
+            Gets or sets a seed for random number generation.
+            </summary>
+            <remarks>
+            <inheritdoc cref="P:PaintDotNet.Effects.Gpu.PdnDentsSampleMap.Props.NoiseSeed" />
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseSeedInstance">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseSeed" /> The default value is auto-generated at instantiation time.
+            </summary>
+            <remarks>
+            <inheritdoc cref="P:PaintDotNet.Effects.Gpu.PdnDentsEffect.Props.NoiseSeed" />
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDentsSampleMap.Props.NoiseSeed">
+            <summary>
+            Specifies a seed number to use for random number generation.<br/>
+            </summary>
+            <remarks>
+            Typically the NoiseSeed property is user configurable with a "Reseed" button that just increments its value,
+            while NoiseSeedInstance is generated once per effect instance. If two effect instances have the same
+            value for both seed properties, rendering output will be identical for both.<br/>
+            Sample maps that are participating in multisampled rendering for the same effect instance should all
+            have the same values for NoiseSeed and NoiseSeedInstance.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDentsSampleMap.Props.NoiseSeedInstance">
+            <summary>
+            Specifies a seed number to use for random number generation.<br/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="P:PaintDotNet.Effects.Gpu.PdnDentsSampleMap.Props.NoiseSeed" />
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnDistortionEffect">
+            <summary>
+            The base class for Paint.NET distortion effects.
+            </summary>
+            <remarks>
+            <inheritdoc cref="T:PaintDotNet.Direct2D1.DynamicImage" />
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Effects.Gpu.PdnDistortionEffect.#ctor(PaintDotNet.Direct2D1.IDeviceContext)">
+            <summary>
+            Creates an instance of the distortion effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDistortionEffect.Props.EdgeMode">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.MultisampleMapRenderer.Props.EdgeMode"/><br/>
+            The default value will vary depending on the effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDistortionEffect.Props.Quality">
+            <summary>
+            Gets or sets the quality of rendering. This controls the number of sub-pixel samples used for
+            multisample antialiasing. The number of samples is the square of this value.<br/>
+            Rendering performance will be proportional to the number of samples, which means it is
+            proportional to the square of this value. That is, a quality value of 8, which uses 64 samples,
+            will take about 64 times as long to render compared to using a quality value of 1.<br/>
+            The range is [1, 8] and the default is usually 2 but derived classes may change this.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDistortionEffect.Props.SamplingMode">
+            <summary>
+            Gets or sets the sampling mode used when reading from the input image. The default is PdnDistortionSamplingMode.Linear.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDistortionEffect.Props.AlphaMode">
+            <summary>
+            Gets or sets the alpha mode for the input and the output. The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnDropShadowEffect">
+            <summary>
+            A Direct2D effect that operates the same as Paint.NET's built-in Drop Shadow effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDropShadowEffect.Props.BlurRadius">
+            <summary>
+            Specifies the amount of blur to be applied to the alpha channel of the image.<br/>
+            The blur is implemented using a gaussian filter.<br/>
+            The range for this value is [0, 300], and the default value is 10.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDropShadowEffect.Props.Distance">
+            <summary>
+            The distance, in pixels, that the shadow is offset by.<br/>
+            The range for this value is unbounded, and the default value is 10.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDropShadowEffect.Props.Angle">
+            <summary>
+            Specifies the angle, in degrees, of the offset for the drop shadow. The value value is -45.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDropShadowEffect.Props.Color">
+            <summary>
+            The color of the drop shadow. You must specify this color in straight alpha (not premultiplied).<br/>
+            The default value is { R=0, G=0, B=0, A=0.75 } (black at 75% opacity).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDropShadowEffect.Props.ShadowOnly">
+            <summary>
+            Specifies whether to draw the shadow only, or to also include the input. The input will be composited on top of the drop shadow.<br/>
+            The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDropShadowEffect.Props.Optimization">
+            <summary>
+            The level of performance optimization. The default value is <see cref="F:PaintDotNet.Effects.Gpu.PdnDropShadowOptimization.Quality"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnDropShadowEffect.Props.AlphaMode">
+            <summary>
+            Sets the alpha mode for the input and the output.<br/>
+            The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Effects.Gpu.PdnDropShadowOptimization.Speed">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.ShadowOptimization2.Speed"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Effects.Gpu.PdnDropShadowOptimization.Balanced">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.ShadowOptimization2.Balanced"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Effects.Gpu.PdnDropShadowOptimization.Quality">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.ShadowOptimization2.Quality"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Effects.Gpu.PdnDropShadowOptimization.HighQuality">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.ShadowOptimization2.HighQuality"/>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnEmbossEffect">
+            <summary>
+            A Direct2D effect that renders Paint.NET's Emboss effect.
+            </summary>
+            <remarks>
+            This effect is visually distinct from Direct2D's built-in <see cref="T:PaintDotNet.Direct2D1.Effects.EmbossEffect"/>. You should
+            use whichever one produces the output that you prefer.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnEmbossEffect.Props.Angle">
+            <summary>
+            The rotation angle of the emboss effect, in degrees. The default value is 0,
+            which draws highlights on the right and shadows on the left.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnEmbossEffect.Props.AlphaMode">
+            <summary>
+            The alpha mode for the input. The output is always opaque, so its alpha mode is invariant.<br/>
+            The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnFragmentEffect">
+            <summary>
+            A Direct2D effect that operates the same as Paint.NET's built-in Fragment effect.<br/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnFragmentEffect.Props.Fragments">
+            <summary>
+            The number of fragments to render. The range is 2 to 200, and the default is 4.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnFragmentEffect.Props.Distance">
+            <summary>
+            The distance of each fragment from the center. The range is 0 to 400 and the default is 8.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnFragmentEffect.Props.Angle">
+            <summary>
+            The offset for the angle of each fragment, in degrees. The default is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnFragmentEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the input and output. The default value is <see cref="F:PaintDotNet.Effects.Gpu.PdnFragmentAlphaMode.Premultiplied"/>.<br/>
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Effects.Gpu.PdnFrostedGlassEffect.#ctor(PaintDotNet.Direct2D1.IDeviceContext)">
+            <summary>
+            <inheritdoc />
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnFrostedGlassEffect.Props.MinScatterRadius">
+            <summary>
+            Gets or sets the minimum scatter radius, in pixels. The range is [0, 500]. The default is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnFrostedGlassEffect.Props.MaxScatterRadius">
+            <summary>
+            Gets or sets the maximum scatter radius, in pixels. The range is [0, 500]. The default is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnFrostedGlassEffect.Props.DiffusionExponent">
+            <summary>
+            The exponent used when calculating the scatter radius.<br/>
+            A value of 1 will evenly distribute scattering in the ring between the min and max radius. Smaller values
+            will prefer distribution closer to the min radius, while larger values will prefer distribution closer to
+            the max radius.<br/>
+            The range is [0.01, 3.0], the default is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnFrostedGlassEffect.Props.Quality">
+            <summary>
+            Defines the smoothness of the frosted glass effect, which determines the number of samples taken.<br/>
+            The range is [1, 8]. The default value is 2.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnFrostedGlassEffect.Props.Seed">
+            <summary>
+            Gets or sets a seed for random number generation.
+            </summary>
+            <remarks>
+            Typically the Seed property is user configurable with a "Reseed" button that just increments its value,
+            while SeedInstance is generated once per effect instance. If two effect instances have the same
+            value for both seed properties, rendering output will be identical for both.<br/>
+            Sample maps that are participating in multisampled rendering for the same effect instance should all
+            have the same values for Seed and InstanceSeed.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnFrostedGlassEffect.Props.SeedInstance">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Effects.Gpu.PdnFrostedGlassEffect.Props.Seed" /> The default value is auto-generated at instantiation time.
+            </summary>
+            <remarks>
+            <inheritdoc cref="P:PaintDotNet.Effects.Gpu.PdnFrostedGlassEffect.Props.Seed" />
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnGlowEffect">
+            <summary>
+            A Direct2D effect that operates the same as Paint.NET's built-in Glow effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnGlowEffect.Props.Glow">
+            <summary>
+            Specifies the glow amount, which configures the blur radius.<br/>
+            The range of this value is [1, 20].<br/>
+            The default value is 6.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnGlowEffect.Props.Brightness">
+            <summary>
+            Specifies how much to adjust the brightness.<br/>
+            The range of this value is [-1, +1], which corresponds to the UI's range of [-100, +100].<br/>
+            The default value is 0.1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnGlowEffect.Props.Contrast">
+            <summary>
+            Specifies how much to adjust the contrast.<br/>
+            The range of this value is [-1, +1], which corresponds to the UI's range of [-100, +100].<br/>
+            The default value is 0.1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnGlowEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and output.<br/>
+            The default value is <see cref="F:PaintDotNet.Effects.Gpu.PdnGlowAlphaMode.Premultiplied"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnHueSaturationLightnessEffect">
+            <summary>
+            A Direct2D effect that adjusts hue, saturation, and lightness in the same manner as Paint.NET's built-in
+            Hue &amp; Saturation adjustment.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnHueSaturationLightnessEffect.Props.HueAngleDelta">
+            <summary>
+            Specifies the change to each pixel's hue. Any finite value is acceptable, but the effective range is
+            [-180.0f, +180.0f] due to wrapping.<br/>
+            The default values is 0, which will leave the hue unchanged.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnHueSaturationLightnessEffect.Props.SaturationFactor">
+            <summary>
+            Specifies a value for changing each pixel's saturation. A pixel's saturation ranges from 0 (unsaturated/grey) to 1 (fully saturated).<br/>
+            If the value is set to 1.0, saturation will be unchanged.<br/>
+            If the value is set to 0, the image will be completely desaturated.<br/>
+            For values less than 1.0, the saturation will be multiplied by the value.<br/>
+            For values greater than 1.0, the saturation will be multiplied by 1+((value-1)*3), which effectively amplifies the scaling by 3x.<br/>
+            The range of this value is [0, 2], which corresponds to the UI's range of [0, 200].<br/>
+            The default value is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnHueSaturationLightnessEffect.Props.LightnessDelta">
+            <summary>
+            Specifies the amount to change each pixel's lightness by. The range for lightness is [0, 1], so the
+            range of this property is [-1.0f, +1.0f]. This corresponds to the UI's range of [-100, +100].<br/>
+            A value of -1 will produce a completely black image, while a value of +1 will produce a completely white image.<br/>
+            Results will be clamped to a valid range.<br/>
+            The default value is 0.<br/>
+            Note that this "lightness" does not operate in exactly the same way as "lightness" in HSL does. It is a simple
+            linear interpolation between black and white.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnHueSaturationLightnessEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input image, for the the output.<br/>
+            The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnInkSketchEffect.Props.InkOutline">
+            <summary>
+            Specifies the strength of the ink outline.<br/>
+            The range of this value is [0, 0.99], which corresponds to the UI's range of [0, 99].<br/>
+            The default value is 0.5.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnInkSketchEffect.Props.Coloring">
+            <summary>
+            Specifies how much color to retain. This is used to increase brightness and decrease contrast.<br/>
+            The range of this value is [0, 1], which corresponds to the UI's range of [0, 100].<br/>
+            The default value is 0.5.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnInkSketchEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and output. The default is premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnJuliaFractalEffect">
+            <summary>
+            A Direct2D effect that renders a Julia fractal.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnJuliaFractalEffect.Props.Size">
+            <summary>
+            The size of the Julia fractal, in pixels. This is normally set to the size of the output buffer.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnJuliaFractalEffect.Props.Offset">
+            <summary>
+            The rendering offset, in pixels, of the Julia fractal.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnJuliaFractalEffect.Props.Factor">
+            <summary>
+            The factor value when computing the fractal. The range is [1, 10]. The default value is 4.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnJuliaFractalEffect.Props.Zoom">
+            <summary>
+            The zoom level of the fractal. The default value is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnJuliaFractalEffect.Props.Angle">
+            <summary>
+            The rotation, in degrees, of the fractal. The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnJuliaFractalEffect.Props.Quality">
+            <summary>
+            Specifies the quality of the output. The number of samples rendered for each output pixel will be equal
+            to the square of the value. The range is 1 to 8, and the default is 2.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnJuliaFractalEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the output. The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnMandelbrotFractalEffect.Props.Size">
+            <summary>
+            The size of the Mandelbrot fractal, in pixels. This is normally set to the size of the output buffer.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnMandelbrotFractalEffect.Props.Offset">
+            <summary>
+            The rendering offset, in pixels, of the Mandelbrot fractal.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnMandelbrotFractalEffect.Props.Factor">
+            <summary>
+            The factor value when computing the fractal. The range is [1, 10]. The default value is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnMandelbrotFractalEffect.Props.Zoom">
+            <summary>
+            The zoom level of the fractal. The default value is 10.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnMandelbrotFractalEffect.Props.Angle">
+            <summary>
+            The rotation, in degrees, of the fractal. The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnMandelbrotFractalEffect.Props.Quality">
+            <summary>
+            Specifies the quality of the output. The number of samples rendered for each output pixel will be equal
+            to the square of the value. The range is 1 to 8, and the default is 2.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnMandelbrotFractalEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the output. The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnMotionBlurEffect">
+            <summary>
+            A Direct2D effect that operates the same as Paint.NET's Motion Blur effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnMotionBlurEffect.Props.Angle">
+            <summary>
+            Specifies the angle, in radians, for the motion blur effect. The default is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnMotionBlurEffect.Props.Distance">
+            <summary>
+            Specifies the distance for the motion blur effect. The actual distance will be the integer floor of the given value.<br/>
+            The range is [1, 500]. The default value is 10.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnMotionBlurEffect.Props.Centered">
+            <summary>
+            Specifies whether the motion blur effect should be centered. The default is true.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnMotionBlurEffect.Props.EdgeMode">
+            <summary>
+            Specifies how sampling beyond the edge of the image should be performed. The default value is Clamp.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnMotionBlurEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and output. The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnPencilSketchEffect">
+            <summary>
+            A Direct2D effect that renders Paint.NET's Pencil Sketch effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnPencilSketchEffect.Props.PencilTipSize">
+            <summary>
+            The size of the pencil tip. The valid range is [1, 20]. The default is 2.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnPencilSketchEffect.Props.ColorRange">
+            <summary>
+            Specifies the color range. This is used to increase brightness and decrease contrast.<br/>
+            The range is [-0.2, +0.2], which corresponds to the UI's range of [-20, +20]. The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnPencilSketchEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the input and output. The default is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnPixelateEffect">
+            <summary>
+            A Direct2D effect that operates the same as Paint.NET's Pixelate effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnPixelateEffect.Props.CellSize">
+            <summary>
+            Specifies the cell size, in pixels, of pixelation. The range is [1, 256]. The default is 2.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnPixelateEffect.Props.ScaleDownInterpolationMode">
+            <summary>
+            Specifies the interpolation mode when scaling the image down. The default is MultisampleLinear.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnPixelateEffect.Props.ScaleUpInterpolationMode">
+            <summary>
+            Specifies the interpolation mode when scaling the image up. The default is NearestNeighbor.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnPixelateEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and the output. The default is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnPolarInversionEffect">
+            <summary>
+            Provides Paint.NET's Polar Inversion effect as a <see cref="T:PaintDotNet.Direct2D1.DynamicEffect"/> that can be used
+            for rendering with Direct2D.
+            </summary>
+            <remarks>
+            <inheritdoc />
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Effects.Gpu.PdnPolarInversionEffect.#ctor(PaintDotNet.Direct2D1.IDeviceContext)">
+            <summary>
+            <inheritdoc />
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnPolarInversionEffect.Props.Scale">
+            <summary>
+            Gets or sets the scale of the polar inversion effect.<br/>
+            If a clipping region is used (e.g. the active selection), this should be set to the
+            the user's scaling choice multiplied by the ratio of the clipping region's diameter
+            to the InputRect's diameter (e.g. userScale * min(clipRect.Width, clipRect.Height) /
+            min(inputRect.Width, inputRect.Height)).<br/>
+            The range for the user's scaling value is usually [-8, +8], but this property has no
+            minimum or maximum.<br/>
+            The default value is 1.0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnPolarInversionEffect.Props.Center">
+            <summary>
+            Gets or sets the center point of the polar inversion effect.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnRadialBlurEffect">
+            <summary>
+            Provides Paint.NET's Radial Blur effect as a <see cref="T:PaintDotNet.Direct2D1.DynamicEffect"/> that can be used
+            for rendering with Direct2D.
+            </summary>
+            <remarks>
+            <inheritdoc cref="T:PaintDotNet.Direct2D1.DynamicImage" />
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnReliefEffect">
+            <summary>
+            A Direct2D effect that operates the same as Paint.NET's Relief effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnReliefEffect.Props.Angle">
+            <summary>
+            The angle, in degrees, of the relief effect. The default is 45.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnReliefEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and output. The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnRotateZoomEffect">
+            <summary>
+            Provides Paint.NET's Rotate/Zoom effect as a <see cref="T:PaintDotNet.Direct2D1.DynamicEffect"/> that can be used
+            for rendering with Direct2D.
+            </summary>
+            <remarks>
+            <inheritdoc/>
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Effects.Gpu.PdnRotateZoomEffect.#ctor(PaintDotNet.Direct2D1.IDeviceContext)">
+            <summary>
+            <inheritdoc />
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnRotateZoomEffect.Props.RollAngle">
+            <summary>
+            Specifies the angle of the transform. The range is [-180, +180]. The default is 0.
+            </summary>
+            <remarks>This corresponds to the X value when using the <see cref="P:PaintDotNet.Effects.Gpu.PdnRotateZoomEffect.Props.Roll"/> property.</remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnRotateZoomEffect.Props.RollDirection">
+            <summary>
+            Specifies the direction of the transform. The range is [-180, +180]. The default is 0.
+            </summary>
+            <remarks>This corresponds to the Y value when using the <see cref="P:PaintDotNet.Effects.Gpu.PdnRotateZoomEffect.Props.Roll"/> property.</remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnRotateZoomEffect.Props.RollAmount">
+            <summary>
+            Specifies the amount of the transform. The range is [0, 90]. The default is 0.
+            </summary>
+            <remarks>This corresponds to the Z value when using the <see cref="P:PaintDotNet.Effects.Gpu.PdnRotateZoomEffect.Props.Roll"/> property.</remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnRotateZoomEffect.Props.Roll">
+            <summary>
+            Specifies all of the roll parameters. This is a convenient way to get or set RollAngle (X),
+            RollDirection (Y), and RollAmount (Z) at the same time.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnRotateZoomEffect.Props.Offset">
+            <summary>
+            Specifies the translation offset of the transform in normalized coordinates.<br/>
+            The range is [(-10,-10), (+10, +10)]. The default is (0, 0).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnRotateZoomEffect.Props.Zoom">
+            <summary>
+            Specifies the zoom level. The valid range is [0.06, 16.0]. The default is 1.0.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnSoftenPortraitEffect">
+            <summary>
+            A Direct2D effect that operates the same as Paint.NET's built-in Soften Portrait effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnSoftenPortraitEffect.Props.Softness">
+            <summary>
+            Specifies how much to soften the image. The range of this value is 0 to 10, and the default value is 5.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnSoftenPortraitEffect.Props.Lighting">
+            <summary>
+            Specifies how much to adjust the lighting of the image.<br/>
+            The range of this value is [-0.2, +0.2], which corresponds to the UI's range of [-20, +20].<br/>
+            The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnSoftenPortraitEffect.Props.Warmth">
+            <summary>
+            Specifies how much to adjust the warmth of the image.<br/>
+            The range of this value is [0, 0.2], which corresponds to the UI's range of [0, +20].<br/>
+            The default value is 0.1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnSoftenPortraitEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the input and the output.<br/>
+            The default value is <see cref="F:PaintDotNet.Effects.Gpu.PdnSoftenPortraitAlphaMode.Premultiplied"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnTileReflectionEffect">
+            <summary>
+            Provides Paint.NET's Tile Reflection effect as a <see cref="T:PaintDotNet.Direct2D1.DynamicEffect"/> that can be used
+            for rendering with Direct2D.
+            </summary>
+            <remarks>
+            <inheritdoc/>
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Effects.Gpu.PdnTileReflectionEffect.#ctor(PaintDotNet.Direct2D1.IDeviceContext)">
+            <summary>
+            <inheritdoc />
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnTwistEffect">
+            <summary>
+            Provides Paint.NET's Twist effect as a <see cref="T:PaintDotNet.Direct2D1.DynamicEffect"/> that can be used
+            for rendering with Direct2D.
+            </summary>
+            <remarks>
+            <inheritdoc />
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Effects.Gpu.PdnTwistEffect.#ctor(PaintDotNet.Direct2D1.IDeviceContext)">
+            <summary>
+            <inheritdoc />
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnTwistEffect.Props.Amount">
+            <summary>
+            The amount of twisting to perform.<br/>
+            The range is [-2, +2], which corresponds to the UI's range of [-200, +200].<br/>
+            The default value is 0.3.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnTwistEffect.Props.Scale">
+            <summary>
+            The scale of the twist effect. This is usually set to a user-defined scaling value (with a
+            range of e.g. [0.01, 2.0]) multiplied by the ratio of the clipping regions's diameter (the minimum of
+            its width and height) to the InputRect's diameter (that is: userScale * min(clipRect.Width, clipRect.Height) /
+            min(inputRect.Width, inputRect.Height)). If the clipping and input rects are the same (e.g. no
+            active selection), then there's no need to multiply by that ratio.<br/> 
+            The range is [float.Epsilon, float.MaxValue], and the default is 1.0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnTwistEffect.Props.Center">
+            <summary>
+            The center point of the twist effect.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnVignetteEffect">
+            <summary>
+            A Direct2D effect that operates the same as Paint.NET's built-in Vignette effect.
+            </summary>
+            <remarks>
+            Note that this is not the same as <see cref="T:PaintDotNet.Direct2D1.Effects.VignetteEffect"/>, which is Direct2D's
+            built-in <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/vignette-effect">Vignette effect</a>.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnVignetteEffect.Props.Offset">
+            <summary>
+            The offset of the vignette from the center. This is specified in coordinates that are
+            normalized to half of the image coordinate space.<br/>
+            [0, 0] draws the vignette from the center of the image, while [-1, -1] draws the vignette
+            between the top left of the image and the center, and [+1, +1] draws the between the center
+            and the bottom right of the image.<br/>
+            The range of this property is [-2, -2] to [+2, +2]. The default value is [0, 0].
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnVignetteEffect.Props.Strength">
+            <summary>
+            Specifies how strong the vignette effect is. The range is 0 to 1, and the default is 1.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnVignetteEffect.Props.Radius">
+            <summary>
+            Specifies the normalized ratio of the vignette's radius. The range is 0.1 to 4.0, and the
+            default is 0.5.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnVignetteEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the effect's input and output. The default value is <see cref="F:PaintDotNet.Effects.Gpu.PdnVignetteAlphaMode.Premultiplied"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnVignetteEffect.Props.InputGamma">
+            <summary>
+            Indicates the gamma of the input image, and for the output. The effect works in linear gamma space, so if the input image is
+            known to be linear, the <see cref="F:PaintDotNet.Effects.Gpu.PdnVignetteInputGamma.Linear" /> value should be used to prevent sRGB to linear conversions
+            from being performed on the input, and linear to sRGB conversions being performed for the output.<br/>
+            The default value is <see cref="F:PaintDotNet.Effects.Gpu.PdnVignetteInputGamma.Srgb"/>.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Effects.Gpu.PdnVignetteInputGamma.Linear">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.HighlightsAndShadowsInputGamma.Linear" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Effects.Gpu.PdnVignetteInputGamma.Srgb">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.HighlightsAndShadowsInputGamma.Srgb" />
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Effects.Gpu.PdnZoomBlurEffect">
+            <summary>
+            Provides Paint.NET's Zoom Blur effect as a <see cref="T:PaintDotNet.Direct2D1.DynamicEffect"/> that can be used
+            for rendering with Direct2D.
+            </summary>
+            <remarks>
+            <inheritdoc cref="T:PaintDotNet.Direct2D1.DynamicImage" />
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnZoomBlurEffect.Props.Center">
+            <summary>
+            Gets or sets the center of the zoom blur effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnZoomBlurEffect.Props.Scale">
+            <summary>
+            Gets or sets the amount of zoom (scaling) to perform. The range is [0.5, 2], and the default is 1.05.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnZoomBlurEffect.Props.AlphaExponent">
+            <summary>
+            Specifies the exponent used for alpha channel dropoff. Higher values cause a faster dropoff in the
+            alpha for samples with respect to the distance from the sampled position. This results in the image
+            being more focused towards the <see cref="P:PaintDotNet.Effects.Gpu.PdnZoomBlurEffect.Props.Center"/> point.<br/>
+            The range is [1, 4]. The default value is 2.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnZoomBlurEffect.Props.Quality">
+            <summary>
+            Gets or sets the quality of the effect rendering. The minimum value is 1, and the default is 2.<br/>
+            This is multiplied by the SampleCountPerQuality property to determine the number of rendering samples.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnZoomBlurEffect.Props.BorderMode">
+            <summary>
+            Gets or sets the border mode, which determines how samples outside the bounds of the input image
+            are calculated.<br/>
+            BorderMode.Hard will clamp the borders of the input image.<br/>
+            BorderMode.Soft will cause pixels outside the image to be sampled as transparent black.<br/>
+            The default is BorderMode.Hard.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Effects.Gpu.PdnZoomBlurEffect.Props.AlphaMode">
+            <summary>
+            Gets or sets the alpha mode for the input and output.<br/>
+            The default value is Premultiplied.
+            </summary>
+        </member>
+    </members>
+</doc>

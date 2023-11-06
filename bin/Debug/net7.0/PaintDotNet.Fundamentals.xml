@@ -1,0 +1,498 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PaintDotNet.Fundamentals</name>
+    </assembly>
+    <members>
+        <member name="F:PaintDotNet.AllocationOptions.ZeroFill">
+            <summary>
+            The buffer will be zero-filled.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.AllocationOptions.Uninitialized">
+            <summary>
+            The buffer is not necessarily zero-filled, and may have effectively random or leftover data in it.
+            This can be faster than using ZeroFill, but you must be more careful.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.ByteUtil.ToScalingFloat(System.Byte)">
+            <summary>
+            Returns (x / 255.0f). A lookup table is used for improved performance.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.ByteUtil.ToScalingDouble(System.Byte)">
+            <summary>
+            Returns (x / 255.0). A lookup table is used for improved performance.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.DisposableUtil.FreeIfDisposable``1(``0@)">
+            <summary>
+            Disposes the given object reference, if it is non-null and implements IDisposable.
+            </summary>
+            <returns>
+            true if the object was non-null and implemented IDisposable, in which case its Dispose() method was called and the reference set to null.
+            false if the object was null or did not implement IDisposable, in which case the reference is left alone.
+            </returns>
+            <remarks>
+            This method does not set the object reference to null if it does not implement IDisposable.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.DisposableUtil.Free``1(``0@)">
+            <summary>
+            Disposes the given object reference, if it is non-null. If the reference is non-null, it will then be set to null.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.DisposableUtil.Free``1(``0@,System.Boolean)">
+            <summary>
+            Disposes the given object reference, if it is non-null. If the reference is non-null,
+            it will then be set to null.
+            </summary>
+            <param name="disposeMe">The object to dispose, if non-null, and set to null afterward.</param>
+            <param name="callerIsNotFinalizing">
+            Whether or not the caller is in their finalizer. Pass in the value of 'disposing' 
+            from your Dispose(bool disposing) implementation. In all other contexts you should
+            use the other overload of Free().<br/>
+            If this value is false (which will be the case when Dispose(bool) is called from a
+            finalizer), then Dispose() will not be called on disposeMe, and it will not be set
+            to null.
+            </param>
+            <remarks>
+            This overload of Free() should only be used from a Dispose(bool) method. It is generally
+            not safe to call Dispose() on objects from finalizers, and this method helps manage that.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.DisposableUtil.FreeContents``1(``0[])">
+            <summary>
+            Disposes all the items in the array, and sets each array element to null.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.DoubleUtil.InlinedCompare(System.Double,System.Double)">
+            <summary>
+            Same as Double.CompareTo(), but inlined. Much faster.
+            </summary>
+            <remarks>This is literally just a copy of Double.CompareTo() with MethodImplOptions.AggressiveInlining added.</remarks>
+        </member>
+        <member name="M:PaintDotNet.DoubleUtil.InlinedCompareNoNaN(System.Double,System.Double)">
+            <summary>
+            Same as InlinedCompare, but faster as long as there are no NaNs.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.DoubleUtil.FastRoundAwayFromZero(System.Double)">
+            <summary>
+            Equivalent (mostly) to Math.Round(x, MidpointRoundingMode.AwayFromZero).
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.EquatableUtil.Equals``2(``0,``1)">
+            <summary>
+            This is a utility method you can call from your override of System.Object.Equals(object) when you
+            have already implemented IEquatable&lt;TThis&gt;.Equals(TThis other).
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.EquatableUtil.OperatorEquals``1(``0,``0)">
+            <summary>
+            This is a utility method you can call from your implementation of operator== when you have
+            already implemented IEquatable&lt;T&gt;.Equals(T other).
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.ExceptionUtil">
+            <summary>
+            The purposes of these methods is based on the fact that any method
+            that throws an exception is not a candidate for inlining. Instead,
+            you can call a method in this class which may then allow the calling
+            method to be inlined.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.ExceptionUtil.IsCriticalException(System.Exception)">
+            <summary>
+            Returns true if the exception is a critical exception that should not be handled or suppressed.
+            </summary>
+            <remarks>
+            These are considered to be critical exceptions:
+            <list type="bullet">
+              <item><see cref="T:System.AccessViolationException"/></item>
+              <item><see cref="T:System.NullReferenceException"/></item>
+              <item><see cref="T:System.OutOfMemoryException"/></item>
+              <item><see cref="T:System.Runtime.InteropServices.SEHException"/></item>
+              <item><see cref="T:System.StackOverflowException"/></item>
+              <item><see cref="T:System.Threading.ThreadAbortException"/></item>
+            </list>
+            If the given exception is one of these types, or derived from one of these types, or if it is
+            an <see cref="T:System.AggregateException"/> that transitively contains a critical exception, the return
+            value will be true.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.FloatUtil.FastRoundAwayFromZero(System.Single)">
+            <summary>
+            Equivalent (mostly) to MathF.Round(x, MidpointRoundingMode.AwayFromZero).
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Functional.Null">
+            <summary>
+            A special struct that can be used as a typeless "null" value, much the same way that
+            NULL is a typeless "null" value in C. This can be useful for implicit type cast
+            operators, e.g. Optional&lt;T&gt; has an implicit typecast operator from Null to
+            itself, allowing you to use Optional.Null as the null value for any T.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Functional.Result.PeekError">
+            <summary>
+            Retrieves this result's exception without observing it.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Functional.Unit">
+            <summary>
+            Represents an empty, void, or "nothing" data type.
+            </summary> 
+        </member>
+        <member name="M:PaintDotNet.Int32Util.Log2(System.Int32)">
+            <summary>
+            Returns log2(x) for positive values of x.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Int32Util.Pow2RoundUp(System.Int32)">
+            <summary>
+            Returns the smallest power of 2 which is greater than or equal to x, for positive values less than or equal to 2^30.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Int32Util.Pow2RoundDown(System.Int32)">
+            <summary>
+            Returns the largest power of 2 which is less than or equal to x, or 0 if x is 0, for positive values.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Int32Util.DivLog2RoundUp(System.Int32,System.Int32)">
+            <summary>
+            Divides x by 2^log2N, and rounds up.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Int32Util.DivLog2RoundDown(System.Int32,System.Int32)">
+            <summary>
+            Divides x by 2^log2N, and rounds down.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Int32Util.RoundUpLog2N(System.Int32,System.Int32)">
+            <summary>
+            Rounds x to a multiple of 2^log2N which is greater than or equal to x.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Int32Util.RoundDownLog2N(System.Int32,System.Int32)">
+            <summary>
+            Rounds x to a multiple of 2^log2N which is greater than or equal to x.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Int32Util.IncrementRoundUp(System.Int32,System.Int32)">
+            <summary>
+            Rounds x to a multiple of n which is greater than or equal to x.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.ReadAtLeast(System.IO.Stream,PaintDotNet.ExtentPtr{System.Byte},System.IntPtr,System.Boolean)">
+            <summary>
+            <inheritdoc cref="M:System.IO.Stream.ReadAtLeast(System.Span{System.Byte},System.Int32,System.Boolean)"/>
+            </summary>
+            <param name="stream">
+            The stream to read from.
+            </param>
+            <param name="buffer">
+            <inheritdoc cref="M:System.IO.Stream.ReadAtLeast(System.Span{System.Byte},System.Int32,System.Boolean)"/>
+            </param>
+            <param name="minimumBytes">
+            <inheritdoc cref="M:System.IO.Stream.ReadAtLeast(System.Span{System.Byte},System.Int32,System.Boolean)"/>
+            </param>
+            <param name="throwOnEndOfStream">
+            <inheritdoc cref="M:System.IO.Stream.ReadAtLeast(System.Span{System.Byte},System.Int32,System.Boolean)"/>
+            </param>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <inheritdoc cref="M:System.IO.Stream.ReadAtLeast(System.Span{System.Byte},System.Int32,System.Boolean)"/>
+            </exception>
+            <exception cref="T:System.IO.EndOfStreamException">
+            <inheritdoc cref="M:System.IO.Stream.ReadAtLeast(System.Span{System.Byte},System.Int32,System.Boolean)"/>
+            </exception>
+            <remarks>
+            <inheritdoc cref="M:System.IO.Stream.ReadAtLeast(System.Span{System.Byte},System.Int32,System.Boolean)"/>
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.ReadExactly(System.IO.Stream,PaintDotNet.ExtentPtr{System.Byte})">
+            <summary>
+            <inheritdoc cref="M:System.IO.Stream.ReadExactly(System.Span{System.Byte})"/>
+            </summary>
+            <param name="stream">
+            The stream to read from.
+            </param>
+            <param name="buffer">
+            <inheritdoc cref="M:System.IO.Stream.ReadExactly(System.Span{System.Byte})"/>
+            </param>
+            <exception cref="T:System.IO.EndOfStreamException">
+            <inheritdoc cref="M:System.IO.Stream.ReadExactly(System.Span{System.Byte})"/>
+            </exception>
+            <remarks>
+            <inheritdoc cref="M:System.IO.Stream.ReadExactly(System.Span{System.Byte})"/>
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.ProperRead(System.IO.Stream,System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Reads the requested amount from the stream.
+            </summary>
+            <remarks>
+            Unlike Stream::Read(), this will always read the requested number of bytes unless the end
+            of the stream is reached, in which case an exception will be thrown. The stream position
+            will be at the end of the stream in that case. The return value is still the number of
+            bytes that were read.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.TryReadByte(System.IO.Stream)">
+            <summary>
+            Reads a single byte from the stream.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.TryReadInt16(System.IO.Stream)">
+            <summary>
+            Reads a 16-bit signed integer from the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.WriteInt16(System.IO.Stream,System.Int16)">
+            <summary>
+            Writes a 16-bit signed integer to the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.TryReadUInt16(System.IO.Stream)">
+            <summary>
+            Reads a 16-bit unsigned integer from the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.WriteUInt16(System.IO.Stream,System.UInt16)">
+            <summary>
+            Writes a 16-bit unsigned integer to the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.TryReadUInt24(System.IO.Stream)">
+            <summary>
+            Reads a 24-bit unsigned integer from the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.WriteUInt24(System.IO.Stream,System.Int32)">
+            <summary>
+            Writes a 24-bit unsigned integer to the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.TryReadInt32(System.IO.Stream)">
+            <summary>
+            Reads a 32-bit signed integer from the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.WriteInt32(System.IO.Stream,System.Int32)">
+            <summary>
+            Writes a 32-bit signed integer to the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.TryReadUInt32(System.IO.Stream)">
+            <summary>
+            Reads a 32-bit unsigned integer from the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.WriteUInt32(System.IO.Stream,System.UInt32)">
+            <summary>
+            Writes a 32-bit unsigned integer to the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.TryReadInt64(System.IO.Stream)">
+            <summary>
+            Reads a 64-bit signed integer from the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.WriteInt64(System.IO.Stream,System.Int64)">
+            <summary>
+            Writes a 64-bit signed integer to the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.TryReadUInt64(System.IO.Stream)">
+            <summary>
+            Reads a 64-bit unsigned integer from the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.WriteUInt64(System.IO.Stream,System.UInt64)">
+            <summary>
+            Writes a 64-bit unsigned integer to the stream in little-endian byte order.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.ReadUInt24(System.IO.Stream)">
+            <summary>
+            Reads a 24-bit unsigned integer from a Stream in little-endian format.
+            </summary>
+            <param name="stream"></param>
+            <returns>-1 on failure, else the 24-bit unsigned integer that was read.</returns>
+        </member>
+        <member name="M:PaintDotNet.IO.StreamExtensions.ReadUInt32(System.IO.Stream)">
+            <summary>
+            Reads a 32-bit unsigned integer from a Stream in little-endian format.
+            </summary>
+            <param name="stream"></param>
+            <returns>-1 on failure, else the 32-bit unsigned integer that was read.</returns>
+        </member>
+        <member name="T:PaintDotNet.ITrimmable">
+            <summary>
+            Defines a method to clear out properties on an object which may be holding on to resources
+            which implement IDisposable.
+            </summary>
+            <remarks>
+            An object is still usable after its Trim() method is called. Any properties which were
+            causing object refs to be held will be nulled, and the object refs will be released. In
+            addition, any fields used to store caches for IDisposable objects will be disposed.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.ITrimmable.Trim(PaintDotNet.TrimMode)">
+            <summary>
+            Tries to reduce the memory used by the object, or mark it as needing trimming the next time it is used.
+            </summary>
+            <remarks>
+            This method must be thread-safe as it will probably be called from a background thread.
+            This method should complete synchronously, as opposed to queueing up the work to be done
+            later/asynchronously.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.MathUtil.Gaussian(System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Calculates the Gaussian value as per the formula described at http://en.wikipedia.org/wiki/Gaussian_function
+            </summary>
+            <remarks>
+            f(x) = a * e^(-(x-b)^2 / 2*c^2)
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.MathUtil.Erf(System.Double)">
+            <summary>
+            Computes the error function. See <a href="https://en.wikipedia.org/wiki/Error_function">Error function (Wikipedia)</a> for more information.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.ReadOnlySpanChunkEnumerator`1">
+            <summary>
+            Affords the traversal of a large memory region (64-bit length) in terms of ReadOnlySpan.
+            </summary>
+            <remarks>Span is limited to a 32-bit length, which this helps to circumvent.</remarks>
+        </member>
+        <member name="M:PaintDotNet.Serialization.DeferredFormatter.ReportBytes(System.Int64)">
+            <summary>
+            Reports that bytes have been successfully been written.
+            </summary>
+            <param name="bytes"></param>
+        </member>
+        <member name="T:PaintDotNet.SpanChunkEnumerator`1">
+            <summary>
+            Affords the traversal of a large memory region (64-bit length) in terms of Span.
+            </summary>
+            <remarks>Span is limited to a 32-bit length, which this helps to circumvent.</remarks>
+        </member>
+        <member name="T:PaintDotNet.Threading.ProtectedRegion">
+            <summary>
+            Allows you to document which regions of code are protected from the standpoint of reentrancy and thread access.
+            </summary>
+            <remarks>
+            Instances of this class must only be disposed if they have never been used, which is appropriate only when using
+            something like Interlocked.CompareExchange() for thread-safe deferred initialization. For this reason, a Dispose()
+            method is available but this class does not implement IDisposable.
+            ProtectedRegion cannot be used to implement thread affinity, such as what is required for many UI-related objects.
+            That is, ProtectedRegion does not check or enforce that methods are called from a specific thread. Use methods like
+            DispatcherObject.CheckAccess()/VerifyAccess() instead.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Threading.ProtectedRegion.Name">
+            <summary>
+            Gets the name of this ProtectedRegion.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Threading.ProtectedRegion.IsThreadEntered">
+            <summary>
+            Gets a flag indicating whether the current thread has entered the ProtectedRegion.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Threading.ProtectedRegion.ThreadEnteredCount">
+            <summary>
+            Gets a count of the current thread's reentrancy count into this ProtectedRegion.
+            </summary>
+            <remarks>
+            A return value of 0 indicates the thread is not currently entered into this ProtectedRegion.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Threading.ProtectedRegion.Options">
+            <summary>
+            Gets the options that were specified when instantiating this ProtectedRegion.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Threading.ProtectedRegionOptions.None">
+            <summary>
+            The ProtectedRegion will only track reentrancy on a per-thread basis, which may
+            be queried using the ThreadEnteredCount and IsThreadEntered properties. An
+            exception will not be thrown if the region is entered multiple times, or is
+            entered from multiple threads.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Threading.ProtectedRegionOptions.DisablePumpingWhenEntered">
+            <summary>
+            Whenever the current thread has entered any PumpingRegion with this option enabled,
+            PdnSynchronizationContext will not pump messages while waiting to enter a lock.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Threading.ProtectedRegionOptions.ErrorOnPerThreadReentrancy">
+            <summary>
+            An error is raised if the current thread tries to enter the region more than once.
+            </summary>
+            <remarks>
+            This option will not raise an error if multiple threads enter the region at the
+            same time unless the ErrorOnMultithreadedAccess option is also used.
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Threading.ProtectedRegionOptions.ErrorOnMultithreadedAccess">
+            <summary>
+            An error is raised if the region is entered by more than one thread at a time.
+            A single thread may enter the region multiple times, as long as the 
+            ErrorOnPerThreadReentrancy option is not also used.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Threading.ProtectedRegionOptions.DoNotSystrace">
+            <summary>
+            By default, a Systrace event will be emitted for the region's duration. For
+            high volume regions, however, this may be undesirable.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Threading.SingleUseCriticalSection">
+            <summary>
+            Implements a critical section that can be unlocked precisely once. This is useful
+            for guarding lazy initialization and avoiding a lock convoy once the value is
+            published. 
+            
+            The first thread that calls Enter will acquire the lock, and then all other threads
+            will block until that first thread calls Exit. At that point, all threads will be
+            released and all further calls into Enter will return immediately. This helps to 
+            avoid a lock convoy once the lock is released by the first thread.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Threading.ThreadUtil.Start(System.Action)">
+            <summary>
+            Executes the given delegate on a brand new thread. This is a good alternative to ThreadPool, Work, and Tasks
+            if the delegate will be long-running, alone, and needs to be started with minimal latency.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.TrimMode.Normal">
+            <summary>
+            The trimmable object should reduce its memory usage.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.TrimMode.Full">
+            <summary>
+            The trimmable object should reduce its memory usage as much as possible.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.UInt32Util.Log2RoundUp(System.UInt32)">
+            <summary>
+            Returns the smallest number of bits which can encode the value of x.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.UInt32Util.Pow2RoundUp(System.UInt32)">
+            <summary>
+            Returns the smallest power of 2 which is greater than or equal to x, for values less than or equal to 2^31.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.UInt32Util.Pow2RoundDown(System.UInt32)">
+            <summary>
+            Returns the largest power of 2 which is less than or equal to x, or 0 if x is 0.
+            </summary>
+        </member>
+    </members>
+</doc>

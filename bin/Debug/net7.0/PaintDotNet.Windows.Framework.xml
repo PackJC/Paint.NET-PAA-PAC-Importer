@@ -1,0 +1,3248 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PaintDotNet.Windows.Framework</name>
+    </assembly>
+    <members>
+        <member name="F:PaintDotNet.Direct2D1.BitmapImageOptions.Default">
+            <summary>
+            The default option, which selects an appropriate image creation strategy based on how large the bitmap is, whether
+            it is an IBitmapSource or IBitmap, the amount of available GPU memory, and whether the device context is using
+            hardware or software rendering.<br/>
+            <br/>
+            Depending on which strategy is used to create the image for the device context, the bitmap may be copied to the
+            to the GPU (cached), or streamed during rendering.<br/>
+            <br/>
+            The bitmap's colors will be converted to the color space of the device context, if available and if possible,
+            unless the <see cref="F:PaintDotNet.Direct2D1.BitmapImageOptions.DisableColorSpaceConversion" /> option is specified.
+            <br/>
+            The image will use premultiplied alpha unless the <see cref="F:PaintDotNet.Direct2D1.BitmapImageOptions.UseStraightAlpha"/> option is specified. The bitmap
+            will be premultiplied or unpremultiplied as necessary.
+            <br/>
+            <b>NOTE: The bitmap should not be modified after the image is created in order to guarantee correct rendering
+            results.</b> If the bitmap is modified after the image is created, results are undefined.<br/>
+            </summary>
+            <remarks>
+            This is the recommended option for the best balance between performance and memory consumption.
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.BitmapImageOptions.DoNotCache">
+            <summary>
+            The source bitmap is not copied to the GPU. Instead, it is streamed on-demand as portions of it are needed for
+            rendering. If the same portion of the bitmap is rendered multiple times, it will be streamed again. No caching
+            is used.
+            </summary>
+            <remarks>
+            This option guarantees the least memory consumption, but not the best performance, especially when the device
+            context is using hardware rendering. The source bitmap should not be modified after the image is created in order
+            to guarantee consistent rendering results.<br/>
+            <br/>
+            This option can be appropriate if the image will only be rendered exactly once.
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.BitmapImageOptions.UseStraightAlpha">
+            <summary>
+            This option ensures that the image uses straight alpha instead of premultiplied alpha. If the bitmap is in
+            a premultiplied alpha format then it will be unpremultiplied. If the bitmap is in a straight alpha format
+            then it will not be premultiplied.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.BitmapImageOptions.DisableColorSpaceConversion">
+            <summary>
+            Use this option to prevent the image from being converted to the device context's color space.
+            This is usually only needed for advanced scenarios where you are performing your own color
+            management.
+            </summary>
+            <remarks>
+            When this option is specified, the <see cref="P:PaintDotNet.Direct2D1.IDeviceImageFormatInfo.ColorContext"/> property will
+            either be the color context supplied to CreateImageFromBitmap(), or the default color context
+            for the bitmap's pixel format.<br/> 
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateBufferedImage(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Direct2D1.IDeviceImage)">
+            <summary>
+            Creates a buffered version of the given image. This can be used to work around limitations in Direct2D's
+            effect rendering system that can result in an <see cref="T:PaintDotNet.Direct2D1.InvalidGraphConfigurationException"/> when an
+            <see cref="T:PaintDotNet.Direct2D1.IDeviceImage"/> is used both in an effect graph and in a command list.<br/>
+            </summary>
+            <remarks>
+            If you get an <see cref="T:PaintDotNet.Direct2D1.InvalidGraphConfigurationException"/> for an effect graph that otherwise looks
+            correct, use this method to wrap any <see cref="T:PaintDotNet.Direct2D1.IDeviceImage"/>s that are used by command lists which are
+            part of the effect graph that is causing the error. The command list(s) at fault may not be yours; they are
+            often contained within <see cref="T:PaintDotNet.Direct2D1.DynamicImage"/>s, for instance. The <see cref="T:PaintDotNet.Direct2D1.IDeviceImage"/> may still be
+            set as the input for the <see cref="T:PaintDotNet.Direct2D1.DynamicImage"/>, but the other nodes in the effect graph should use the
+            wrapper created by this method.<br/>
+            <br/>
+            When the Direct2D debug layer and Visual Studio's mixed-mode debugging ("Enable debugging for managed and
+            native code together") are both enabled, you would see the following error:<br/>
+            <code>A command list cannot reference effects which are part of effect graphs that consume the command list.</code>
+            See also: <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/d1159">D1159: Invalid Command List topology</a><br/>
+            <br/>
+            An example of an effect graph that can cause this error:
+            <code>
+            IDeviceImage --> SampleMapRenderer
+                     |         |    
+                     |         |    
+                     v         v
+                   CompositeEffect
+            </code>
+            In this example, the <see cref="T:PaintDotNet.Direct2D1.IDeviceImage"/> is used as an input for both a SampleMapRenderer and a
+            <see cref="T:PaintDotNet.Direct2D1.Effects.CompositeEffect"/>. The SampleMapRenderer, which implements <see cref="T:PaintDotNet.Direct2D1.DynamicImage"/>, internally
+            uses several effects and command lists to produce its output. In this case, the SampleMapRenderer should
+            still be given the original IDeviceImage, while the CompositeEffect should use the buffered image:
+            <code>
+            IDeviceImage --> SampleMapRenderer
+                     |         |
+                     v         |
+              IBufferedImage   |
+                     |         |
+                     v         v
+                   CompositeEffect
+            </code>
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateCommandList(PaintDotNet.Direct2D1.IDeviceContext,System.Action{PaintDotNet.Direct2D1.IDeviceContext})">
+            <summary>
+            <inheritdoc cref="M:PaintDotNet.Direct2D1.IDeviceContext.CreateCommandList"/>
+            </summary>
+            <param name="deviceContext">The device context to use.</param>
+            <param name="drawCallback">A delegate, called before this method returns, that issues the drawing commands for the command list.</param>
+            <returns>A <see cref="T:PaintDotNet.Direct2D1.ICommandList"/> that is populated with the drawing commands issued by <paramref name="drawCallback"/>.</returns>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateImageFromBitmap(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Imaging.IBitmapSource,PaintDotNet.Direct2D1.IDeviceColorContext,PaintDotNet.Direct2D1.BitmapImageOptions)">
+            <summary>
+            Creates an image that renders the given bitmap. This method supports bitmaps of arbitrary sizes and in
+            many pixel formats, whereas CreateBitmap() is limited by the MaximumBitmapSize property and requires
+            that the bitmap be in a pixel format natively supported by Direct2D (e.g. indexed or straight alpha pixel
+            formats are not supported).<br/>
+            </summary>
+            <remarks>
+            The bitmap may be cached or streamed depending on various factors, including the bitmap type (IBitmap or
+            IBitmapSource), its size, the maximum bitmap size supported by the device context, the amount of available
+            GPU memory, and whether hardware or software rendering is being used.<br/>
+            <br/>
+            <b>NOTE: The bitmap should not be modified after the image is created in order to guarantee correct
+            rendering results.</b> If the bitmap is modified after the image is created, results are undefined.<br/>
+            <br/>
+            The bitmap will be converted to a format that is suitable for rendering with Direct2D. For instance, if
+            the bitmap is not in a premultiplied alpha format, it will be premultiplied unless the
+            <see cref="F:PaintDotNet.Direct2D1.BitmapImageOptions.UseStraightAlpha"/> option is specified. Indexed pixel formats are also
+            supported. Alpha8 bitmaps will be converted to a mask where each pixel is colored white and using the
+            source bitmap's alpha value.<br/>
+            <br/>
+            The bitmap will be converted to the color space associated with the device context, if any. This ensures,
+            for example, that sRGB bitmaps (which is most of them) can be drawn correctly when rendering to a device
+            context that uses linear gamma. Note that it is not always possible to determine the color contexts to
+            use for conversion. If that is the case, color space conversion will not be performed.<br/>
+            <br/>
+            Premultiplication and conversions are either performed on the GPU, or while copying the bitmap to the GPU.
+            The bitmap is not modified by this method.
+            </remarks>
+            <param name="deviceContext">The <see cref="T:PaintDotNet.Direct2D1.IDeviceContext"/> to use for creating resources.</param>
+            <param name="bitmap">
+            The <see cref="T:PaintDotNet.Imaging.IBitmapSource"/> or <see cref="T:PaintDotNet.Imaging.IBitmap"/> to create an <see cref="T:PaintDotNet.Direct2D1.IBitmapImage"/> for.
+            </param>
+            <param name="bitmapColorContext">
+            The optionally specified color context information. This will be used when converting to the device context's
+            color space. If null is specified then the default color context for the bitmap's pixel format will be used
+            (e.g. sRGB for Bgra32, scRGB for Rgba128Float).</param>
+            <param name="options">The options for creating the image.</param>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateImageFromBitmap(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Imaging.IBitmapSource,PaintDotNet.Direct2D1.BitmapImageOptions)">
+            <summary>
+            <inheritdoc cref="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateImageFromBitmap(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Imaging.IBitmapSource,PaintDotNet.Direct2D1.IDeviceColorContext,PaintDotNet.Direct2D1.BitmapImageOptions)"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateImageFromBitmap(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Imaging.IBitmapSource,PaintDotNet.Direct2D1.IDeviceColorContext,PaintDotNet.Direct2D1.BitmapImageOptions)"/>
+            </remarks>
+            <param name="deviceContext"><inheritdoc cref="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateImageFromBitmap(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Imaging.IBitmapSource,PaintDotNet.Direct2D1.IDeviceColorContext,PaintDotNet.Direct2D1.BitmapImageOptions)" path="/param[@name='deviceContext']"/></param>
+            <param name="bitmap"><inheritdoc cref="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateImageFromBitmap(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Imaging.IBitmapSource,PaintDotNet.Direct2D1.IDeviceColorContext,PaintDotNet.Direct2D1.BitmapImageOptions)" path="/param[@name='bitmap']"/></param>
+            <param name="options"><inheritdoc cref="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateImageFromBitmap(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Imaging.IBitmapSource,PaintDotNet.Direct2D1.IDeviceColorContext,PaintDotNet.Direct2D1.BitmapImageOptions)" path="/param[@name='options']"/></param>
+            <returns></returns>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateBitmapSourceFromImage``1(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Rendering.SizeInt32,PaintDotNet.Direct2D1.IDeviceImage)">
+            <summary>
+            Creates an <see cref="T:PaintDotNet.Imaging.IBitmapSource`1"/> that renders the given <see cref="T:PaintDotNet.Direct2D1.IDeviceImage"/> into
+            CPU accessible memory.<br/>
+            <br/>
+            If the <see cref="T:PaintDotNet.Direct2D1.IDeviceContext"/> is using hardware acceleration, rendering will be performed on the GPU
+            and then copied to CPU memory. This is done on-demand when <see cref="M:PaintDotNet.Imaging.IBitmapSource.CopyPixels(System.Void*,System.Int32,System.UInt32,System.Nullable{PaintDotNet.Rendering.RectInt32}@)"/>
+            is called. No caching is used.
+            </summary>
+            <remarks>
+            For this method overload, the pixel format of the rendering buffer will match the pixel format of the
+            <see cref="T:PaintDotNet.Imaging.IBitmapSource"/>. Some effects require higher precision buffers to render correctly (e.g. distortion
+            effects that use SampleMapRenderer). In that case, use the
+            <see cref="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateBitmapSourceFromImage``1(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Rendering.SizeInt32,PaintDotNet.Direct2D1.IDeviceImage,PaintDotNet.Direct2D1.DevicePixelFormat)"/>
+            overload and specify something like <see cref="P:PaintDotNet.Direct2D1.DevicePixelFormats.Prgba128Float"/>.<br/>
+            <br/>
+            <b>Note:</b> The pixel format of the <see cref="T:PaintDotNet.Imaging.IBitmapSource"/> must use premultiplied alpha.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateBitmapSourceFromImage``1(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Rendering.SizeInt32,PaintDotNet.Direct2D1.IDeviceImage,PaintDotNet.Direct2D1.DevicePixelFormat)">
+            <summary>
+            <inheritdoc cref="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateBitmapSourceFromImage``1(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Rendering.SizeInt32,PaintDotNet.Direct2D1.IDeviceImage)"/>
+            </summary>
+            <remarks>
+            Use this overload to specify a pixel format for the rendering buffer. Some effects require higher precision
+            buffers to render correctly (e.g. distortion effects that use SampleMapRenderer). In that case
+            you can specify <see cref="P:PaintDotNet.Direct2D1.DevicePixelFormats.Prgba128Float"/> for the pixel format. The GPU will be used
+            to convert from the buffer's pixel format to the <see cref="T:PaintDotNet.Imaging.IBitmapSource"/>'s pixel format.<br/>
+            <br/>
+            <b>Note:</b> The pixel format of the <see cref="T:PaintDotNet.Imaging.IBitmapSource"/> must use premultiplied alpha.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Direct2DFactoryExtensions.CreateGeometryFromPathMarkup(PaintDotNet.Direct2D1.IDirect2DFactory,System.String)">
+            <summary>
+            Creates a Direct2D geometry from the given path markup text.
+            </summary>
+            <remarks>
+            See <a href="https://learn.microsoft.com/en-us/dotnet/desktop/wpf/graphics-multimedia/path-markup-syntax?view=netframeworkdesktop-4.8">Path Markup Syntax</a>
+            for information about how this string is formatted.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Direct2DFactoryExtensions.CreateGeometryFromWpfGeometry(PaintDotNet.Direct2D1.IDirect2DFactory,System.Windows.Media.Geometry,System.Nullable{System.Single})">
+            <summary>
+            Converts a WPF <see cref="T:System.Windows.Media.Geometry"/> to a Direct2D <see cref="T:PaintDotNet.Direct2D1.IGeometry"/>.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Direct2DFactoryExtensions.RegisterEffectFromBlob(PaintDotNet.Direct2D1.IDirect2DFactory,System.ReadOnlyMemory{System.Byte})">
+            <summary>
+            Register an effect from a blob that contains the serialized parameters for ID2D1Factory1::RegisterEffectFromStream().
+            </summary>
+            <remarks>
+            This method supports the D2D1EffectRegistrationData.V1 format from ComputeSharp.D2D1 version 2.0.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Direct2DToWpfGeometrySink">
+            <summary>
+            Streams a Direct2D IGeometry into a new System.Windows.Media.PathGeometry
+            </summary>
+            <remarks>
+            Note that this is a fork of FromDirect2DGeometrySink. Any bugfixes should be
+            synchronized between the two.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.DynamicEffect">
+            <summary>
+            <inheritdoc cref="T:PaintDotNet.Direct2D1.IDynamicEffect"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="T:PaintDotNet.Direct2D1.IDynamicEffect"/>
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.DynamicEffect.Props.DisplayName">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.DeviceEffectProperty.DisplayName" />
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.DynamicEffect.Props.Author">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.DeviceEffectProperty.Author" />
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.DynamicEffect.Props.Category">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.DeviceEffectProperty.Category" />
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.DynamicEffect.Props.Description">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.DeviceEffectProperty.Description" />
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.DynamicImage">
+            <summary>
+            <inheritdoc cref="T:PaintDotNet.Direct2D1.IDynamicImage"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="T:PaintDotNet.Direct2D1.IDynamicImage"/>
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.DynamicImage.Props.Precision">
+            <summary>
+            Gets or sets the <see cref="T:PaintDotNet.Direct2D1.BufferPrecision"/> of the output.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.AlphaMaskEffect2">
+            <summary>
+            Similar to <see cref="T:PaintDotNet.Direct2D1.Effects.AlphaMaskEffect"/>, but also supports Straight alpha via configuring the AlphaMode property.<br/>
+            <br/>
+            This effect applies an alpha mask to an image. It has two inputs, named Destination and Mask.
+            Color values in the Destination image are multiplied by the alpha channel of the Mask image.<br/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.AlphaMaskEffect2.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the <see cref="P:PaintDotNet.Direct2D1.Effects.AlphaMaskEffect2.Props.Destination"/> image, and the alpha mode of the output.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.AlphaMaskAlphaMode2.Premultiplied"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.BitmapSourceEffect2">
+            <summary>
+            Similar to <see cref="T:PaintDotNet.Direct2D1.Effects.BitmapSourceEffect"/>, but has improved performance and reduced functionality.<br/>
+            <br/>
+            This effect will stream the bitmap source to the GPU as needed; the bitmap is not cached.<br/>
+            <br/>
+            This effect will copy the pixels from the bitmap source directly to GPU memory, and as such will only
+            work with pixel formats that can be copied directly to the GPU. It will not perform premultiplication,
+            pixel format conversion, or color space conversion, nor will it ensure that the alpha channel contains opaque
+            values for pixel formats that do not support alpha (such as Bgr32). Mipmap chains are also not supported.<br/>
+            <br/>
+            For most purposes, it is recommended to use <see cref="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateImageFromBitmap(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Imaging.IBitmapSource,PaintDotNet.Direct2D1.BitmapImageOptions)"/>
+            which will perform format conversions from pixel formats that cannot be directly copied to the GPU (e.g.
+            Bgr24, indexed formats, etc.), and will ensure pixel formats like Bgr32 have an opaque alpha chanel.
+            </summary>
+            <remarks>
+            If you are using a bitmap in a straight alpha pixel format, such as Bgra32, you should use this effect as
+            the input to a <see cref="T:PaintDotNet.Direct2D1.Effects.PremultiplyEffect"/> unless you are certain that the next effect in the graph is
+            expecting straight alpha pixel values (most do not).<br/>
+            <br/>
+            If you are using a bitmap in a pixel format that does not have an alpha channel, such as Bgr32, you must
+            ensure that all pixels are actually encoded with an opaque alpha channel. Otherwise rendering may be
+            incorrect. You can use the <see cref="T:PaintDotNet.Direct2D1.Effects.MakeOpaqueEffect"/> to ensure that the alpha channel is opaque.<br/>
+            <br/>
+            The following pixel formats are supported: Alpha8, Bgr32, Bgra32, Pbgra32, Rgba64, Prgba64, Rgb64Half,
+            Rgba64Half, Prgba64Half, Rgb128Float, Rgba128Float, and Prgba128Float.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BitmapSourceEffect2.Props.OpacityMetadata">
+            <summary>
+            Specifies the alpha content of the input image, which affects the opacity metadata for the
+            output image.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.BitmapSourceOpacityMetadata.Default"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.BitmapSourceOpacityMetadata">
+            <summary>
+            Specifies the opacity metadata for an <see cref="T:PaintDotNet.Imaging.IBitmapSource"/> when using the <see cref="T:PaintDotNet.Direct2D1.Effects.BitmapSourceEffect2"/> effect.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BitmapSourceOpacityMetadata.Default">
+            <summary>
+            The opacity metadata for the effect's output is determined by the pixel format of the bitmap source.
+            For pixel formats that do not have an alpha channel (e.g. Bgr32, Rgb64Half, Rgb128Float), the output
+            will be marked as opaque, which can improve rendering performance.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BitmapSourceOpacityMetadata.NotOpaque">
+            <summary>
+            The opacity metadata for the effect's output is not marked as opaque. This will still produce
+            correct rendering results if an image is fully opaque, but performance may be lower.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BitmapSourceOpacityMetadata.Opaque">
+            <summary>
+            The opacity metadata for the effect's output is always marked as opaque. This can improve rendering
+            performance if you are using a pixel format that supports an alpha channel but you know that all
+            pixels in the bitmap are opaque. Using this with a bitmap that does contain pixels with non-opaque
+            pixels can result in incorrect rendering.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.BlendEffect2">
+            <summary>
+            Similar to <see cref="T:PaintDotNet.Direct2D1.Effects.BlendEffect"/>, but with different blend modes. Includes the layer blend
+            modes from Paint.NET that are not supported by <see cref="T:PaintDotNet.Direct2D1.Effects.BlendEffect"/>, such as Xor. Does not
+            include the blend modes that are supported by <see cref="T:PaintDotNet.Direct2D1.Effects.BlendEffect"/>.<br/>
+            <br/>
+            The classic &quot;Normal&quot; blend mode from Paint.NET is equivalent to <see cref="F:PaintDotNet.Direct2D1.CompositeMode.SourceOver"/>
+            or <see cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver"/>.<br/>
+            <br/>
+            The inputs are converted to straight alpha if the AlphaMode property is set to Premultiplied. The
+            blend mode is applied, then the result is clamped to the range [0, 1]. Lastly, the output is
+            premultiplied if the AlphaMode property is set to Premultiplied.<br/>
+            <br/>
+            For a convenient way to use any blend or composite mode, see <see cref="T:PaintDotNet.Direct2D1.Effects.MixEffect"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BlendEffect2.Props.Destination">
+            <summary>
+            The destination image, which is used as the &quot;under&quot; (bottom) blending layer.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BlendEffect2.Props.Source">
+            <summary>
+            The source image, which is used as the &quot;over&quot; (top) blending layer
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BlendEffect2.Props.Mode">
+            <summary>
+            Specifies the blend mode to use.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BlendEffect2.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the input and output. The default is Premultiplied.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BlendMode2.Additive">
+            <summary>
+            The source and destination colors are summed.<br/>
+            output = dst + src
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BlendMode2.Reflect">
+            <summary>
+            The source colors are reflected over the destination colors.<br/>
+            output = min(1, (dst * dst) / (1 - src))
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BlendMode2.Glow">
+            <summary>
+            The inverse of Reflect.<br/>
+            output = min(1, (src * src) / (1 - dst))
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BlendMode2.Negation">
+            <summary>
+            The source colors are negated over the destination colors.<br/>
+            output = (1 - abs(1 - dst - src))
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BlendMode2.Min">
+            <summary>
+            The minimum of each color channel is used.<br/>
+            output = [R=min(dst.R, src.R), G=min(dst.G, src.G), B=min(dst.B, src.B)]
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BlendMode2.Max">
+            <summary>
+            The maximum of each color channel is used.<br/>
+            output = [R=max(dst.R, src.R), G=max(dst.G, src.G), B=max(dst.B, src.B)]
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BlendMode2.XorInt8">
+            <summary>
+            The source and destination colors are XOR'd together using 8-bits of precision.
+            </summary>
+            <remarks>
+            &quot;8-bits of precision&quot; refers to the normalized range of [0.0f, 1.0f].
+            Pixel values outside of that normalized range are not clamped and will still work,
+            but very large values may not have enough precision to work correctly.<br/>
+            The pixel values are multiplied by 255.0f, cast to integers, xor'd together,
+            then cast back to float, and finally divided by 255.0f. 
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BlendMode2.XorInt16">
+            <summary>
+            The source and destination colors are XOR'd together using 16-bits of precision.
+            </summary>
+            <remarks>
+            &quot;16-bits of precision&quot; refers to the normalized range of [0.0f, 1.0f].
+            Pixel values outside of that normalized range are not clamped and will still work,
+            but very large values may not have enough precision to work correctly.<br/>
+            The pixel values are multiplied by 65535.0f, cast to integers, xor'd together,
+            then cast back to float, and finally divided by 65535.0f. 
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BokehBlurEdgeMode.Clamp">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BorderEdgeMode2.Clamp"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BokehBlurEdgeMode.Mirror">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BorderEdgeMode2.Mirror"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BokehBlurEdgeMode.Wrap">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BorderEdgeMode2.Wrap"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BokehBlurEdgeMode.Transparent">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BorderEdgeMode2.Transparent"/>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.BokehBlurEffect">
+            <summary>
+            Use the Bokeh blur effect to give an out-of-focus appearance to an image.<br/>
+            <br/>
+            See <a href="https://en.wikipedia.org/wiki/Bokeh">Bokeh (Wikipedia)</a> for more information.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BokehBlurEffect.Props.Radius">
+            <summary>
+            The radius of the bokeh effect. A value of 0 will disable the blur effect.<br/>
+            The valid range is [0, 300], the default is 25.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BokehBlurEffect.Props.Quality">
+            <summary>
+            The quality of the bokeh effect. Performance is affected linearly. For example, a quality of 6 takes
+            about twice as long to render as a quality value of 3.<br/>
+            The range is [1, 10] and the default is 3.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BokehBlurEffect.Props.EdgeMode">
+            <summary>
+            Specifies how samples outside the bounds of the input image are calculated.<br/>
+            If this value is Transparent, the effect pads the image with transparent pixels as it applies the blur kernel,
+            resulting in a soft edge. The output will be larger than the input by approximately the blur radius, in pixels.
+            If set to another edge mode, the effect clamps the output to the size of the input image.<br/>
+            The default value is Transparent.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BokehBlurEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and output. The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.BokehBlurEffect.Impl.HorizontalConvolutionAndAccumulatePartialsShader.Execute">
+            <inheritdoc/>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BokehBlurMapEdgeMode.Clamp">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BokehBlurEdgeMode.Clamp"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BokehBlurMapEdgeMode.Mirror">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BokehBlurEdgeMode.Mirror"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BokehBlurMapEdgeMode.Wrap">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BokehBlurEdgeMode.Wrap"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BokehBlurMapEdgeMode.Transparent">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BokehBlurEdgeMode.Transparent"/>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect">
+            <summary>
+            This effect simulates the ability to have a per-pixel value for the blur radius of a
+            <see cref="T:PaintDotNet.Direct2D1.Effects.BokehBlurEffect"/>. This is implemented as a linear interpolation across
+            many copies of the image blurred at various radius levels.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.Input">
+            <summary>
+            Provides the input image for the effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.RadiusMap">
+            <summary>
+            Provides an image where each pixel's alpha component specifies the radius for
+            blurring at that location. Depending on the value of the <see cref="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.MapIsNormalized"/>
+            property, this image should either have normalized values in the [0, 1] range, or
+            non-normalized values that are in the [0, <see cref="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.MaxRadius"/>] range.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.MaxRadius">
+            <summary>
+            Specifies the maximum blur radius that is rendered. If the <see cref="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.RadiusMap"/> contains pixels
+            specifying a blur radius larger than this value, then they will be clamped to this value.<br/>
+            <br/>
+            The range of this value is [0, 300]. The default value is 30.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.RadiusLevels">
+            <summary>
+            Specifies the number of blur levels to be rendered. The image will be blurred this many times with
+            an exponentially increasing blur radius based on the value of <see cref="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.MaxRadius"/>. Increasing
+            this value will improve quality, but also reduce performance.<br/>
+            <br/>
+            The range of this value is [1, 30]. The default value is 10.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.MapIsNormalized">
+            <summary>
+            Specifies whether the <see cref="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.RadiusMap"/> input image is normalized.<br/>
+            <br/>
+            If this value is true, the map's alpha values are expected to be in the range [0, 1]. The blur radius
+            at each pixel will be the map's alpha value multiplied by <see cref="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.MaxRadius"/>.
+            <br/>
+            If this value is false, the map's alpha values are used directly.
+            <br/>
+            The default value is <c>true</c>, which affords easily using the output of most effects as the map input for this effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.Quality">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.BokehBlurEffect.Props.Quality"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.EdgeMode">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.BokehBlurEffect.Props.EdgeMode"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BokehBlurMapEffect.Props.AlphaMode">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.BokehBlurEffect.Props.AlphaMode"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BorderEdgeMode2.Clamp">
+            <summary>
+            Repeats the pixels from the edges of the image.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BorderEdgeMode2.Wrap">
+            <summary>
+            Uses pixels from the opposite end edge of the image.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BorderEdgeMode2.Mirror">
+            <summary>
+            Reflects pixels about the edge of the image.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.BorderEdgeMode2.Transparent">
+            <summary>
+            Extends the boundaries of the image without changing its appearance.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.BorderEffect2">
+            <summary>
+            Similar to <see cref="T:PaintDotNet.Direct2D1.Effects.BorderEffect"/>, but adds the Transparent edge mode. This can be used
+            to extend an image's bounds to infinity while not affecting its appearance. Unlike
+            <see cref="T:PaintDotNet.Direct2D1.Effects.BorderEffect"/>, the edge mode cannot be set separately for X and Y directions.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.BorderEffect2.Props.EdgeMode">
+            <summary>
+            The edge mode for the effect. The default value is BorderEdgeMode2.Clamp.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.BoundsAdjustmentPrefixTransform">
+            <summary>
+            A layout transform that records the size of the input's output rect and forwards that
+            to be the output rect for a BoundsAdjustmentTransform.<br/>
+            This transform should be placed at the start of a transform graph, and the BoundsAdjustmentTransform
+            should be placed toward the end of the transform graph.<br/>
+            The output will then be cropped to the size of the input image, or the rect calculated by the
+            <see cref="M:PaintDotNet.Direct2D1.Effects.BoundsAdjustmentPrefixTransform.MapInputRectToBoundsAdjustmentOutputRect(PaintDotNet.Rendering.RectInt32,PaintDotNet.Rendering.RectInt32@)"/> virtual method.<br/>
+            <br/>
+            <code>
+            [Input] -> [BoundsAdjustmentPrefixTransform] --> ... --> [BoundsAdjustmentTransform] -> [Output]
+                                                 |                         ^
+                                                 |                         |
+                                                 +------> outputRect ------+
+            </code>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ClampEffect">
+            <summary>
+            Clamps the pixel values of the input image to a valid range.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ClampEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the input image.<br/>
+            If set to ClampAlphaMode.Premultiplied, each pixel's alpha value is clamped to the range [0, 1] and then the RGB values are clamped to the range [0, alpha].<br/>
+            If set to ClampAlphaMode.Straight, all components are clamped to the range [0, 1].<br/>
+            The default value is ClampAlphaMode.Premultiplied.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ClampEffect.Props.Enabled">
+            <summary>
+            Enables or disables the effect. The default value is true.<br/>
+            </summary>
+            <remarks>
+            This property is useful when creating an effect graph where the <see cref="T:PaintDotNet.Direct2D1.Effects.ClampEffect"/> should be conditionally enabled
+            based on other state. This makes it possible to avoid rebuilding the effect graph just for the sake of enabling or disabling
+            clamping.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ColorManagementEffect2">
+            <summary>
+            Similar to <see cref="T:PaintDotNet.Direct2D1.Effects.ColorManagementEffect"/>, but adds an Enabled property.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect2.Props.SourceColorContext">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect.Props.SourceColorContext"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect2.Props.SourceRenderingIntent">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect.Props.SourceRenderingIntent"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect2.Props.DestinationColorContext">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect.Props.DestinationColorContext"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect2.Props.DestinationRenderingIntent">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect.Props.DestinationRenderingIntent"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect2.Props.AlphaMode">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect.Props.AlphaMode"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ColorManagementEffect2.Props.Quality">
+            <summary>
+            The quality level of the transform. The default value is ColorManagementQuality.Best.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ConvertAlphaEffect">
+            <summary>
+            This effect converts an input image from one alpha format to another. It uses the <see cref="T:PaintDotNet.Direct2D1.Effects.PremultiplyEffect"/>
+            or <see cref="T:PaintDotNet.Direct2D1.Effects.UnPremultiplyEffect"/> depending on the value of the <see cref="P:PaintDotNet.Direct2D1.Effects.ConvertAlphaEffect.Props.Mode"/>
+            property.<br/>
+            <br/>
+            This effect may be more convenient than using <see cref="T:PaintDotNet.Direct2D1.Effects.PremultiplyEffect"/> or <see cref="T:PaintDotNet.Direct2D1.Effects.UnPremultiplyEffect"/>
+            depending on the nature and configuration of the effect graph you are working with.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvertAlphaEffect.Props.Mode">
+            <summary>
+            Specifies the conversion type. The default is <see cref="F:PaintDotNet.Direct2D1.Effects.ConvertAlphaMode.Passthrough"/>, which leaves
+            the input unchanged.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ConvertAlphaMode">
+            <summary>
+            Specifies the alpha mode for the <see cref="T:PaintDotNet.Direct2D1.Effects.ConvertAlphaEffect"/>.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ConvertAlphaMode.Premultiply">
+            <summary>
+            The input will be converted from straight alpha to premultiplied alpha.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ConvertAlphaMode.UnPremultiply">
+            <summary>
+            The input will be converted from premultiplied alpha to straight alpha.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ConvertAlphaMode.Passthrough">
+            <summary>
+            The input will be unchanged.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ConvertGammaEffect">
+            <summary>
+            This effect is used to convert the gamma of an input image. Conversion can be done from sRGB to Linear,
+            Linear to sRGB, or a custom exponent can be used.<br/>
+            <br/>
+            Conversion between sRGB and Linear uses the <see cref="T:PaintDotNet.Direct2D1.Effects.SrgbToLinearEffect"/> or <see cref="T:PaintDotNet.Direct2D1.Effects.LinearToSrgbEffect"/>,
+            which implements a gamma exponent approximately equal to 2.2. See
+            <a href="https://medium.com/@tomforsyth/the-srgb-learning-curve-773b7f68cf7a">The sRGB Learning Curve</a>
+            for more information.<br/>
+            <br/>
+            If a custom exponent is used, then <see cref="T:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2"/> is used.<br/>
+            <br/>
+            Images are usually encoded using sRGB, and most effects are implemented in the Linear gamma space. Therefore,
+            it is more accurate to convert an image from sRGB to Linear before other effects are used for processing.
+            The image should then be converted back from Linear to sRGB.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvertGammaEffect.Props.Mode">
+            <summary>
+            Specifies the gamma conversion mode. The default value is Passthrough, which leaves the input unchanged.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvertGammaEffect.Props.CustomExponent">
+            <summary>
+            Specifies the gamma exponent for when Mode is set to <see cref="F:PaintDotNet.Direct2D1.Effects.ConvertGammaMode.CustomExponent"/> or
+            <see cref="F:PaintDotNet.Direct2D1.Effects.ConvertGammaMode.InverseCustomExponent"/>. The default value is 1.0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvertGammaEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and the output. The default is Premultiplied.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ConvertGammaMode.SrgbToLinear">
+            <summary>
+            The <see cref="T:PaintDotNet.Direct2D1.Effects.SrgbToLinearEffect"/> is used to convert the input image from sRGB (~2.2) to Linear (1.0).
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ConvertGammaMode.LinearToSrgb">
+            <summary>
+            The <see cref="T:PaintDotNet.Direct2D1.Effects.LinearToSrgbEffect"/> is used to convert the input image from Linear (1.0) to sRGB (~2.2).
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ConvertGammaMode.CustomExponent">
+            <summary>
+            The <see cref="T:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2"/> is used to apply a custom gamma exponent.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ConvertGammaMode.InverseCustomExponent">
+            <summary>
+            The <see cref="T:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2"/> is used to apply the reciprocal of a custom gamma exponent.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ConvertGammaMode.Passthrough">
+            <summary>
+            The input image is unchanged.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect2.Props.KernelSizeX">
+            <summary>
+            The width of the kernel matrix. The units are specified in kernel units. The default value is 3.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect2.Props.KernelSizeY">
+            <summary>
+            The height of the kernel matrix. The units are specified in kernel units. The default value is 3.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect2.Props.KernelMatrix">
+            <summary>
+            The kernel matrix to be applied to the image. The kernel elements aren't bounded and are specified as floats.
+            The first set of KernelSizeX numbers in the FLOAT[] corresponds to the first row in the kernel. The second
+            set of KernelSizeX numbers correspond to the second row, and so on up to KernelSizeY rows.<br/>
+            The default value is { 0, 0, 0, 0, 1, 0, 0, 0, 0 }.<br/>
+            Use the <see cref="M:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect2.Props.SetKernelMatrixAndSize(System.Single[0:,0:])"/> method for a convenient way to set both KernelMatrix
+            and KernelSizeX/Y from a 2-dimensional array.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect2.Props.KernelTileSize">
+            <summary>
+            Specifies the tiling size for the kernel matrix. This should be set to lower values, such as 64 or 128, for
+            2-dimensional kernel matrices. Large values, such as 1024 or 2048, are good for 1D kernel matrices.<br/>
+            The default is 64.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect2.Props.EdgeMode">
+            <summary>
+            Specifies how samples outside of the image should be calculated.<br/>
+            If set to Transparent, the output size is larger than the input by the size of the kernel matrix.<br/>
+            Otherwise, the output size is the same as the input size.<br/>
+            The default is Transparent.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect2.Props.SetKernelMatrixAndSize(System.Collections.Generic.IReadOnlyList{System.Collections.Generic.IReadOnlyList{System.Single}})">
+            <summary>
+            A helper method that sets the KernelMatrix, KernelY, and KernelX properties.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.ConvolveMatrixEffect2.Props.SetKernelMatrixAndSize(System.Single[0:,0:])">
+            <summary>
+            A helper method that sets the KernelMatrix, KernelY, and KernelX properties.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.CroppedFloodEffect">
+            <summary>
+            Combines <see cref="T:PaintDotNet.Direct2D1.Effects.FloodEffect2"/> and <see cref="T:PaintDotNet.Direct2D1.Effects.CropEffect"/> to create a cropped solid color fill effect.<br/>
+            <br/>
+            This effect also supports configuring the alpha mode for the color and the output.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.CroppedFloodEffect.Props.Color">
+            <summary>
+            The color and opacity of the output. This effect will premultiply the color values if the
+            <see cref="P:PaintDotNet.Direct2D1.Effects.CroppedFloodEffect.Props.AlphaMode"/> property is set to <see cref="F:PaintDotNet.Direct2D1.Effects.CroppedFloodAlphaMode.Premultiplied"/>,
+            which is the default and is usually the correct choice.<br/>
+            The default value is { R=0, G=0, B=0, A=1} (opaque black).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.CroppedFloodEffect.Props.Rect">
+            <summary>
+            The region of the output. The default value is { -float.Max, -float.Max, +float.Max, +float.Max },
+            which results in no cropping.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.CroppedFloodEffect.Props.BorderMode">
+            <summary>
+            Specifies how the border of the cropped region is treated.<br/>
+            BorderMode.Soft will apply antialiasing if the crop rectangle falls on fractional pixel coordinates.<br/>
+            BorderMode.Hard will result in clamping and a hard edge.<br/>
+            The default value is BorderMode.Soft.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.CroppedFloodEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the output. If this is set to <see cref="F:PaintDotNet.Direct2D1.Effects.CroppedFloodAlphaMode.Premultiplied"/>,
+            the color will be premultiplied, which is usually the correct choice.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.CroppedFloodAlphaMode.Premultiplied"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.CrossFadeMaskEffect">
+            <summary>
+            Similar to <see cref="T:PaintDotNet.Direct2D1.Effects.CrossFadeEffect"/>, but uses a mask image to do a per-pixel
+            cross-fade between two images.<br/>
+            <br/>
+            A SourceMask alpha value of 0 will use the pixel from Destination, while a value of 1
+            will use the pixel from Source, and 0.5 will take the average.<br/>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.EmptyEffect">
+            <summary>
+            An effect that produces no output.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.FillOutputRectEffect">
+            <summary>
+            Generates an axis-aligned rectangle that fills the output rectangle of the input.<br/>
+            Note that this effect does not know about images with irregular or transformed shapes. For instance, if
+            the input is an <see cref="T:PaintDotNet.Direct2D1.Effects.AffineTransform2DEffect"/> with a rotation transform matrix, the output area
+            will cover the axis-aligned bounding rectangle of the rotated image. If you want the the output to also
+            be rotated, and to have a soft border, you must use the untransformed image as the input to this effect,
+            and then use this effect as the input to another transform effect (e.g. <see cref="T:PaintDotNet.Direct2D1.Effects.AffineTransform2DEffect"/>)
+            with the same transform properties.<br/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.FillOutputRectEffect.Props.Color">
+            <summary>
+            Specifies the color of the output. The default value is { 1, 1, 1, 1 } (opaque white).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.FillOutputRectEffect.Props.TransformMatrix">
+            <summary>
+            The transform for the output rectangle. The default value is the identity matrix, which results in no transform.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.FillOutputRectEffect.Props.AlphaMode">
+            <summary>
+            Specifies whether the output should be premultiplied. The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.FillOutputRectAlphaMode.Premultiplied"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.FloodAlphaMode2">
+            <summary>
+            Specifies the alpha mode for the <see cref="T:PaintDotNet.Direct2D1.Effects.FloodEffect2"/>.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.FloodAlphaMode2.Premultiplied">
+            <summary>
+            The color will be premultiplied. This is usually the right choice.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.FloodAlphaMode2.Straight">
+            <summary>
+            The color will not be premultiplied or changed in any way.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.FloodEffect2">
+            <summary>
+            Use this effect to generate an image based on the specified color and alpha value.<br/>
+            <br/>
+            This effect is similar to <see cref="T:PaintDotNet.Direct2D1.Effects.FloodEffect"/>, but uses a <see cref="T:PaintDotNet.Imaging.ColorRgba128Float"/> instead of a
+            <see cref="T:PaintDotNet.Rendering.Vector4Float"/> for specifying the color, along with the alpha mode. This effect will
+            automatically premultiply the color value unless the alpha mode is set to <see cref="F:PaintDotNet.Direct2D1.Effects.FloodAlphaMode2.Straight"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.FloodEffect2.Props.Color">
+            <summary>
+            The color and opacity of the bitmap. This effect will premultiply the color values if the
+            <see cref="P:PaintDotNet.Direct2D1.Effects.FloodEffect2.Props.AlphaMode"/> property is set to <see cref="F:PaintDotNet.Direct2D1.Effects.FloodAlphaMode2.Premultiplied"/>,
+            which is the default and is usually the correct choice.<br/>
+            The default value is { R=0, G=0, B=0, A=1} (opaque black).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.FloodEffect2.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the output. If this is set to <see cref="F:PaintDotNet.Direct2D1.Effects.FloodAlphaMode2.Premultiplied"/>,
+            the color will be premultiplied, which is usually the correct choice.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.FloodAlphaMode2.Premultiplied"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2">
+            <summary>
+            Similar to <see cref="T:PaintDotNet.Direct2D1.Effects.GammaTransferEffect"/>, but allows specifying the alpha format of the
+            input and output.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.Input">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.Input"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.RedAmplitude">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.RedAmplitude"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.RedExponent">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.RedExponent"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.RedOffset">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.RedOffset"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.RedDisable">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.RedDisable"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.GreenAmplitude">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.GreenAmplitude"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.GreenExponent">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.GreenExponent"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.GreenOffset">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.GreenOffset"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.GreenDisable">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.GreenDisable"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.BlueAmplitude">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.BlueAmplitude"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.BlueExponent">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.BlueExponent"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.BlueOffset">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.BlueOffset"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.BlueDisable">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.BlueDisable"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.AlphaAmplitude">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.AlphaAmplitude"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.AlphaExponent">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.AlphaExponent"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.AlphaOffset">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.AlphaOffset"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.AlphaDisable">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.AlphaDisable"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.ClampOutput">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect.Props.ClampOutput"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GammaTransferEffect2.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and the output.<br/>
+            The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect2">
+            <summary>
+            Provides the same functionality as <see cref="T:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect"/>, but adds a HighQuality
+            mode that does not apply any optimizations or shortcuts that reduce image quality. When using
+            the HighQuality mode, rendering quality is greatly improved for images that are gamma corrected
+            or that have a low dynamic range (such as when using a large gamma exponent), but performance
+            is greatly reduced.<br/>
+            <br/>
+            <b>NOTE:</b> The maximum value for the StandardDeviation property is much lower than for <see cref="T:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect2.Props.StandardDeviation">
+            <summary>
+            The amount of blur to be applied to the image. You can compute the blur radius of the
+            kernel by multiplying the standard deviation by 3. You can compute the standard deviation
+            by dividing the blur radius by 3. The units of both the standard deviation and blur radius
+            are DIPs. A value of zero disables this effect entirely.<br/>
+            You can use the <see cref="T:PaintDotNet.Direct2D1.Effects.StandardDeviation"/> class to
+            simplify conversion between standard deviation and radius.<br/>
+            The range of this value is [0, 100], which corresponds to a blur radius of [0, 300].<br/>
+            The default value is 3.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect2.Props.Optimization">
+            <summary>
+            The optimization mode. The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.GaussianBlurOptimization2.HighQuality"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect2.Props.BorderMode">
+            <summary>
+            The mode used to calculate the border of the image.<br/>
+            When set to BorderMode.Soft, the effect pads the image with transparent black pixels as it
+            applies the blur kernel, resulting in a soft edge. The output will be larger than the input
+            by approximately StandardDeviation*3 pixels (the blur radius) when using the Speed, Balanced,
+            or Quality optimizations. The output will be larger than the input by approximately
+            StandardDeviation*6 pixels when using the HighQuality optimization.<br/>
+            When set to BorderMode.Hard, the effect clamps the output to the size of the input image.
+            When the effect applies the blur kernel, it extends the input image with a mirror-type border
+            transform for samples outside of the input bounds.<br/>
+            The default value is BorderMode.Soft.<br/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect2.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and the output.<br/>
+            The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect">
+            <summary>
+            This effect simulates the ability to have a per-pixel value for the blur radius (standard deviation)
+            of a <see cref="T:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect2"/>. This is implemented as a linear interpolation across many
+            copies of the image blurred at various radius levels.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.Input">
+            <summary>
+            Provides the input image for the effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.StandardDeviationMap">
+            <summary>
+            Provides an image where each pixel's alpha component specifies the standard deviation
+            for blurring at that location. Depending on the value of the <see cref="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.MapIsNormalized"/>
+            property, this image should either have normalized values in the [0, 1] range, or
+            non-normalized values that are in the [0, <see cref="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.MaxStandardDeviation"/>] range.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.MaxStandardDeviation">
+            <summary>
+            Specifies the maximum blur radius (standard deviation) that is rendered. If the <see cref="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.StandardDeviationMap"/>
+            contains pixels specifying a standard deviation larger than this value, then they will be clamped to this value.<br/>
+            <br/>
+            The range of this value is [0, 100]. The default value is 10.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.StandardDeviationLevels">
+            <summary>
+            Specifies the number of blur levels to be rendered. The image will be blurred this many times with
+            an increasing blur radius based on the value of <see cref="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.MaxStandardDeviation"/>. Increasing this
+            value will improve quality, but also reduce performance.<br/>
+            <br/>
+            The range of this value is [1, 30]. The default value is 10.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.MapIsNormalized">
+            <summary>
+            Specifies whether the <see cref="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.StandardDeviationMap"/> input image is normalized.<br/>
+            <br/>
+            If this value is true, the map's alpha values are expected to be in the range [0, 1]. The standard deviation
+            at each pixel will be the map's alpha value multiplied by <see cref="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.MaxStandardDeviation"/>.
+            <br/>
+            If this value is false, the map's alpha values are used directly.
+            <br/>
+            The default value is <c>true</c>, which affords easily using the output of most effects as the map input for this effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.Optimization">
+            <summary>
+            The optimization mode. The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.GaussianBlurMapOptimization.Quality"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.BorderMode">
+            <summary>
+            <inheritdoc cref="P:PaintDotNet.Direct2D1.Effects.GaussianBlurEffect2.Props.BorderMode"/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GaussianBlurMapEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and the output.<br/>
+            The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.GaussianBlurMapOptimization.Speed">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.GaussianBlurOptimization2.Speed"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.GaussianBlurMapOptimization.Balanced">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.GaussianBlurOptimization2.Balanced"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.GaussianBlurMapOptimization.Quality">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.GaussianBlurOptimization2.Quality"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.GaussianBlurMapOptimization.HighQuality">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.GaussianBlurOptimization2.HighQuality"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.GaussianBlurOptimization2.Speed">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.GaussianBlurOptimization.Speed"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.GaussianBlurOptimization2.Balanced">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.GaussianBlurOptimization.Balanced"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.GaussianBlurOptimization2.Quality">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.GaussianBlurOptimization.Quality"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.GaussianBlurOptimization2.HighQuality">
+            <summary>
+            No internal optimizations are applied, and no shortcuts are taken to improve performance. This
+            produces the highest quality output, but performance is significantly reduced.<br/>
+            This is typically only necesary for images that are gamma corrected, or those with a low dynamic
+            range, such as when amplifying with a high gamma value, such as seen in Paint.NET's built-in
+            Gaussian Blur and Bokeh effects.<br/>
+            It is not recommended to use this with software rendering.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.GrayscaleEffect2">
+            <summary>
+            Similar to <see cref="T:PaintDotNet.Direct2D1.Effects.GrayscaleEffect"/>, but can also be configured for sRGB or linear gamma. This
+            also necessitates the specification of straight vs. premultiplied alpha. 
+            </summary>
+            <remarks>
+            Note that this effect calculates the luma for the image's color values, which is different than
+            luminance. See <a href="https://www.geeksforgeeks.org/difference-between-luma-and-luminance/">Difference between Luma and Luminance</a>
+            for more information.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GrayscaleEffect2.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the input and output. The default is Premultiplied.<br/>
+            To preserve color information for transparent pixels, make sure the input is in
+            straight alpha format (not premultiplied) and set this property to Straight.<br/>
+            The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.GrayscaleEffect2.Props.InputGamma">
+            <summary>
+            Indicates the gamma of the input image, and for the output. If the input image is known to be linear, then the
+            <see cref="F:PaintDotNet.Direct2D1.Effects.GrayscaleInputGamma2.Linear"/> value should be used so that the correct calculations are used.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.GrayscaleInputGamma2.Srgb"/>.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.GrayscaleInputGamma2.Linear">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.HighlightsAndShadowsInputGamma.Linear" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.GrayscaleInputGamma2.Srgb">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.HighlightsAndShadowsInputGamma.Srgb" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryFunction.Atan2">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Atan2(ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryFunction.Fmod">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Fmod(ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryFunction.Ldexp">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Ldexp(ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryFunction.Max">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Max(ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryFunction.Min">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Min(ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryFunction.Pow">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Pow(ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+            <remarks>
+            NOTE: This method will use the absolute value of the first parameter.
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryFunction.Reflect">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Reflect(ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryFunction.Step">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Step(ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryFunction.Distance">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Distance(ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+            <remarks>
+            The result of this function is a scalar value which is broadcast to all fields of the vector.
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryFunction.Dot">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Dot(ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+            <remarks>
+            The result of this function is a scalar value which is broadcast to all fields of the vector.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.HlslBinaryFunctionEffect">
+            <summary>
+            Executes an HLSL function that takes two parameters.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryOperator.Add">
+            <summary>
+            Corresponds to the <![CDATA[+]]> binary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryOperator.Subtract">
+            <summary>
+            Corresponds to the <![CDATA[-]]> binary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryOperator.Multiply">
+            <summary>
+            Corresponds to the <![CDATA[*]]> binary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryOperator.Divide">
+            <summary>
+            Corresponds to the <![CDATA[/]]> binary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryOperator.Modulus">
+            <summary>
+            Corresponds to the <![CDATA[%]]> binary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryOperator.AddAsInt">
+            <summary>
+            Corresponds to the <![CDATA[+]]> binary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryOperator.SubtractAsInt">
+            <summary>
+            Corresponds to the <![CDATA[-]]> binary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryOperator.MultiplyAsInt">
+            <summary>
+            Corresponds to the <![CDATA[*]]> binary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryOperator.DivideAsInt">
+            <summary>
+            Corresponds to the <![CDATA[/]]> binary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryOperator.ModulusAsInt">
+            <summary>
+            Corresponds to the <![CDATA[%]]> binary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryOperator.BitwiseAnd">
+            <summary>
+            Corresponds to the <![CDATA[&]]> binary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryOperator.BitwiseOr">
+            <summary>
+            Corresponds to the <![CDATA[|]]> binary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslBinaryOperator.BitwiseXor">
+            <summary>
+            Corresponds to the <![CDATA[^]]> binary operator.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.HlslBinaryOperatorEffect">
+            <summary>
+            Combines two images or values using an HSL binary operator such as +, -, *, or /.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslTernaryFunction.Clamp">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Clamp(ComputeSharp.Float4,ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslTernaryFunction.Lerp">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Lerp(ComputeSharp.Float4,ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslTernaryFunction.SmoothStep">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.SmoothStep(ComputeSharp.Float4,ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslTernaryFunction.Mad">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Mad(ComputeSharp.Float4,ComputeSharp.Float4,ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.HlslTernaryFunctionEffect">
+            <summary>
+            Executes an HLSL function that takes three parameters.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Abs">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Abs(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Acos">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Acos(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Asin">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Asin(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Atan">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Atan(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Ceil">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Ceil(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Cos">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Cos(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Cosh">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Cosh(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Degrees">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Degrees(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.DerivativeOfDx">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.DerivativeOfDx(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.DerivativeOfDxHighPrecision">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.DerivativeOfDxHighPrecision(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.DerivativeOfDxLowPrecision">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.DerivativeOfDxLowPrecision(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.DerivativeOfDy">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.DerivativeOfDy(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.DerivativeOfDyHighPrecision">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.DerivativeOfDyHighPrecision(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.DerivativeOfDyLowPrecision">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.DerivativeOfDyLowPrecision(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Exp">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Exp(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Exp2">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Exp2(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Floor">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Floor(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Frac">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Frac(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Fwidth">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Fwidth(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Log">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Log(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Log2">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Log2(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Log10">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Log10(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Normalize">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Normalize(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Radians">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Radians(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Rcp">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Rcp(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Round">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Round(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Rsqrt">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Rsqrt(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Saturate">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Saturate(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Sign">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Sign(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Sin">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Sin(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Sinh">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Sinh(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Sqrt">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Sqrt(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Tan">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Tan(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Tanh">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Tanh(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Trunc">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Trunc(ComputeSharp.Float4)" />
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Length">
+            <summary>
+            <inheritdoc cref="M:ComputeSharp.Hlsl.Length(ComputeSharp.Float4)" />
+            </summary>
+            <remarks>
+            The result of this function is a scalar value which is broadcast to all fields of the vector.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.HlslUnaryFunctionEffect">
+            <summary>
+            Applies an HLSL unary operator to every pixel in the input image.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryOperator.Negate">
+            <summary>
+            Corresponds to the - unary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryOperator.NegateAsInt">
+            <summary>
+            Corresponds to the - unary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryOperator.BitwiseNot">
+            <summary>
+            Corresponds to the ~ unary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryOperator.CastFloatToInt">
+            <summary>
+            Corresponds to the (int4) unary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryOperator.CastFloatToUInt">
+            <summary>
+            Corresponds to the (uint4) unary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryOperator.CastIntToFloat">
+            <summary>
+            Corresponds to the (float4) unary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryOperator.CastIntToUInt">
+            <summary>
+            Corresponds to the (uint4) unary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryOperator.CastUIntToFloat">
+            <summary>
+            Corresponds to the (float4) unary operator.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.HlslUnaryOperator.CastUIntToInt">
+            <summary>
+            Corresponds to the (int4) unary operator.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.InputSelectorEffect">
+            <summary>
+            An effect with variable number of inputs, and a property to select which input is used as the output.
+            This effect can be useful for changing an effect graph without having to rebuild it.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.InputSelectorEffect.Props.Index">
+            <summary>
+            Sets which input is used as the output. If the input count is 0, or if the value of Index is invalid
+            (including negative values), then the output will be empty. The default value is 0.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.InputSwizzleEffect">
+            <summary>
+            Swizzles the channels from a variable number of inputs. You can specify the input index and channel that corresponds
+            to each output channel.<br/>
+            <br/>
+            This effect supports any number of inputs, but only 4 can be used at once. Use <see cref="P:PaintDotNet.Direct2D1.IDeviceEffect.InputCount"/>
+            to specify the number of inputs.<br/>
+            <br/>
+            If you are only swizzling from 1 input, it is recommended to use the <see cref="T:PaintDotNet.Direct2D1.Effects.PixelSwizzleEffect"/> instead.<br/>
+            <br/>
+            <code>
+            output = new Color(
+                Input[RedInputIndex][RedInputChannel],
+                Input[GreenInputIndex][GreenInputChannel],
+                Input[BlueInputIndex][BlueInputChannel],
+                Input[AlphaInputIndex][AlphaInputChannel]);
+            </code>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.InputSwizzleEffect.Props.RedInputIndex">
+            <summary>
+            Specifies which input to use for the output's red channel.<br/>
+            The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.InputSwizzleEffect.Props.RedInputChannel">
+            <summary>
+            Specifies which channel to read from the RedInputIndex for the output's red channel.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.ChannelSelector.R"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.InputSwizzleEffect.Props.GreenInputIndex">
+            <summary>
+            Specifies which input to use for the output's green channel.<br/>
+            The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.InputSwizzleEffect.Props.GreenInputChannel">
+            <summary>
+            Specifies which channel to read from the GreenInputIndex for the output's green channel.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.ChannelSelector.G"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.InputSwizzleEffect.Props.BlueInputIndex">
+            <summary>
+            Specifies which input to use for the output's blue channel.<br/>
+            The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.InputSwizzleEffect.Props.BlueInputChannel">
+            <summary>
+            Specifies which channel to read from the BlueInputIndex for the output's blue channel.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.ChannelSelector.B"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.InputSwizzleEffect.Props.AlphaInputIndex">
+            <summary>
+            Specifies which input to use for the output's alpha channel.<br/>
+            The default value is 0.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.InputSwizzleEffect.Props.AlphaInputChannel">
+            <summary>
+            Specifies which channel to read from the AlphaInputIndex for the output's alpha channel.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.ChannelSelector.A"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.InputSwizzleEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the inputs and the output.<br/>
+            If this value is <see cref="F:PaintDotNet.Direct2D1.Effects.InputSwizzleAlphaMode.Premultiplied"/>, the inputs will be unpremultiplied, then the
+            swizzling will be performed, and then the result will be premultiplied.<br/>
+            If this value is <see cref="F:PaintDotNet.Direct2D1.Effects.InputSwizzleAlphaMode.Straight"/>, the swizzling will be performed directly without
+            any premultiplication or unpremultiplication.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.InputSwizzleAlphaMode.Premultiplied"/>.<br/>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.InvertAlphaEffect">
+            <summary>
+            Inverts the alpha channel of an image.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.InvertAlphaEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and the output. The default value is Premultiplied, which results
+            in the input being unpremultiplied (converted to straight alpha), then the alpha channel is inverted,
+            then the result is premultiplied and used as the output.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.InvertEffect2">
+            <summary>
+            Similar to <see cref="T:PaintDotNet.Direct2D1.Effects.InvertEffect"/>, but does not require a premultiplied input. This means
+            that color information can be preserved for transparent pixels when the input is in straight alpha
+            format and <see cref="P:PaintDotNet.Direct2D1.Effects.InvertEffect2.Props.AlphaMode"/> is set to <see cref="F:PaintDotNet.Direct2D1.Effects.InvertAlphaMode2.Straight"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.InvertEffect2.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the input and output.
+            To preserve color information for transparent pixels, make sure the input is in
+            straight alpha format (not premultiplied) and set this property to Straight.<br/>
+            The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.LinearToSrgbEffect">
+            <summary>
+            Converts an image from linear scRGB (gamma 1.0) to companded sRGB (gamma ~2.2).
+            </summary>
+            <remarks>
+            This effect is the inverse of <see cref="T:PaintDotNet.Direct2D1.Effects.SrgbToLinearEffect"/>.<br/>
+            This is a helper effect that is the same as using the <see cref="T:PaintDotNet.Direct2D1.Effects.ColorManagementEffect"/> with the
+            SourceColorContext initialized to <see cref="F:PaintDotNet.Direct2D1.ColorSpace.ScRgb"/> and the DestinationColorContext
+            set to <see cref="F:PaintDotNet.Direct2D1.ColorSpace.Srgb"/>.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.LinearToSrgbEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and the output. The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.LinearToSrgbEffect.Props.Enabled">
+            <summary>
+            Enables or disables the effect. The default value is true.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.MakeOpaqueEffect">
+            <summary>
+            Forces the input image to be opaque. This is useful when working with an image source that is in the BGR32 pixel
+            format, as the &quot;alpha&quot; channel may be zero or uninitialized.<br/>
+            <br/>
+            This effect is usually used with a <see cref="T:PaintDotNet.Direct2D1.Effects.BitmapSourceEffect2"/> as the input.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.MakeOpaqueEffect.Props.InputAlphaMode">
+            <summary>
+            Specifies the alpha mode of the input. If this is <see cref="F:PaintDotNet.Direct2D1.AlphaMode.Ignore"/>, <see cref="F:PaintDotNet.Direct2D1.AlphaMode.Straight"/>,
+            or <see cref="F:PaintDotNet.Direct2D1.AlphaMode.Unknown"/>, the alpha channel will be set to 1 (opaque) without changing the RGB
+            channels.<br/>
+            If this is set to <see cref="F:PaintDotNet.Direct2D1.AlphaMode.Premultiplied"/>, the input will be un-premultiplied first. This will
+            cause transparent pixels to become opaque black.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.AlphaMode.Ignore"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.MixEffect">
+            <summary>
+            Provides composite modes, blend modes, and alpha masking in the same effect.<br/>
+            <br/>
+            This is the same as using the <see cref="T:PaintDotNet.Direct2D1.Effects.CompositeEffect"/>, <see cref="T:PaintDotNet.Direct2D1.Effects.BlendEffect"/>,
+            <see cref="T:PaintDotNet.Direct2D1.Effects.BlendEffect2"/>, or <see cref="T:PaintDotNet.Direct2D1.Effects.AlphaMaskEffect"/> depending on which mode you
+            want to use. This effect provides all of those modes in one effect which can be more
+            convenient. It also performs automatic alpha-mode conversion when necessary and as
+            specified by the AlphaMode property.<br/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.MixEffect.Props.Mode">
+            <summary>
+            Specifies the mixing mode. The default is <see cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.MixEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and output.<br/>
+            This effect will premultiply or unpremultiply the inputs based on the value of this property and
+            what the mix mode requires, and then unpremultiply or premultiply the output based on the value
+            of this property.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.MixAlphaMode.Premultiplied"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.MixMode">
+            <summary>
+            Provides composite modes, blend modes, and alpha masking. These modes are aggregated
+            from CompositeMode, BlendMode, BlendMode2, and the AlphaMaskEffect.<br/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.CompositeMode.SourceOver"/>
+            </summary>
+            <remarks>
+            This mode operates in premultiplied alpha space. If the AlphaMode property is set
+            to Straight then the input will be premultiplied, the operation will be performed,
+            and then the output will be unpremultiplied.
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeDestinationOver">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.CompositeMode.DestinationOver"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceIn">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.CompositeMode.SourceIn"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeDestinationIn">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.CompositeMode.DestinationIn"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOut">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.CompositeMode.SourceOut"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeDestinationOut">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.CompositeMode.DestinationOut"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceAtop">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.CompositeMode.SourceAtop"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeDestinationAtop">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.CompositeMode.DestinationAtop"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeXor">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.CompositeMode.Xor"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositePlus">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.CompositeMode.Plus"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceCopy">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.CompositeMode.SourceCopy"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeBoundedSourceCopy">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.CompositeMode.BoundedSourceCopy"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeMaskInvert">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.CompositeMode.MaskInvert"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.CompositeSourceOver" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Multiply"/>
+            </summary>
+            <remarks>
+            This mode operates in premultiplied alpha space. If the AlphaMode property is set
+            to Straight then the input will be premultiplied, the operation will be performed,
+            and then the output will be unpremultiplied.
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendScreen">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Screen"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendDarken">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Darken"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendLighten">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Lighten"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendDissolve">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Dissolve"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendColorBurn">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.ColorBurn"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendLinearBurn">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.LinearBurn"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendDarkerColor">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.DarkerColor"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendLighterColor">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.LighterColor"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendColorDodge">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.ColorDodge"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendLinearDodge">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.LinearDodge"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendOverlay">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Overlay"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendSoftLight">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.SoftLight"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendHardLight">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.HardLight"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendVividLight">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.VividLight"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendLinearLight">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.LinearLight"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendPinLight">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.PinLight"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendHardMix">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.HardMix"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendDifference">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Difference"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendExclusion">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Exclusion"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendHue">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Hue"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendSaturation">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Saturation"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendColor">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Color"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendLuminosity">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Luminosity"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendSubtract">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Subtract"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendDivision">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.BlendMode.Division"/>
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.BlendMultiply" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2Additive">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BlendMode2.Reflect" />
+            </summary>
+            <remarks>
+            This mode operates in straight alpha space. If the AlphaMode property is set to
+            Premultiplied then the input will be unpremultiplied, the operation will be performed,
+            and then the output will be premultiplied.
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2Reflect">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BlendMode2.Reflect" />
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2Additive" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2Glow">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BlendMode2.Glow" />
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2Additive" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2Negation">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BlendMode2.Negation" />
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2Additive" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2Min">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BlendMode2.Min" />
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2Additive" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2Max">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BlendMode2.Max" />
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2Additive" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2XorInt8">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BlendMode2.XorInt8" />
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2Additive" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2XorInt16">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.BlendMode2.XorInt16" />
+            </summary>
+            <remarks>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.MixMode.Blend2Additive" />
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.MixMode.AlphaMask">
+            <summary>
+            Applies an alpha mask from the source to the destination.<br/>
+            Color values in the destination are multiplied by the alpha channel of the source.<br/>
+            <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/alpha-mask-effect">Direct2D Alpha mask effect</a>
+            for more information.
+            </summary>
+            <remarks>
+            This mode operates in premultiplied alpha space. If the AlphaMode property is set
+            to Straight then the input will be premultiplied, the operation will be performed,
+            and then the output will be unpremultiplied.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.MixModeUtil.From(PaintDotNet.Direct2D1.BlendMode)">
+            <summary>
+            Gets the corresponding <see cref="T:PaintDotNet.Direct2D1.Effects.MixMode"/> for the given <see cref="T:PaintDotNet.Direct2D1.BlendMode"/>.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.MixModeUtil.From(PaintDotNet.Direct2D1.Effects.BlendMode2)">
+            <summary>
+            Gets the corresponding <see cref="T:PaintDotNet.Direct2D1.Effects.MixMode"/> for the given <see cref="T:PaintDotNet.Direct2D1.Effects.BlendMode2"/>.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.MixModeUtil.From(PaintDotNet.Direct2D1.CompositeMode)">
+            <summary>
+            Gets the corresponding <see cref="T:PaintDotNet.Direct2D1.Effects.MixMode"/> for the given <see cref="T:PaintDotNet.Direct2D1.CompositeMode"/>.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.MixModeUtil.GetUserMixModes">
+            <summary>
+            Gets the mix modes that are useful for user operations. These can be used for a Blend Mode
+            property in an effect plugin. All blending modes are included, but many of the composite
+            modes are not. AlphaMask is not included.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.PassthroughEffect">
+            <summary>
+            This effect does not modify the input, serving instead as a passthrough node. This can be
+            used to adjust caching, or simply as a way to wrap an <see cref="T:PaintDotNet.Direct2D1.IDeviceImage"/>
+            (such as an <see cref="T:PaintDotNet.Direct2D1.ICommandList"/> or <see cref="T:PaintDotNet.Direct2D1.IDeviceBitmap"/>) as an effect.
+            This permits providing an <see cref="T:PaintDotNet.Direct2D1.IDeviceImage"/> to another component, while retaining
+            the ability to change the image without communicating with the other component
+            (<see cref="T:PaintDotNet.Direct2D1.ICommandList"/>s are immutable, and <see cref="T:PaintDotNet.Direct2D1.IDeviceBitmap"/>s cannot
+            be resized or have their pixel format changed).
+            </summary>
+            <remarks>
+            Note that changes to the Precision property will have no effect. Use the <see cref="T:PaintDotNet.Direct2D1.Effects.PrecisionEffect"/>
+            for this purpose instead.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PerPixelInputSelectorEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and the output.<br/>
+            The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.PixelShaderTransforms.CreateOutputOnly``1(``0@)">
+            <summary>
+            Creates a transform for a shader with no inputs. The output rect will be logically infinite, and the
+            output opaque sub-rect will be empty.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.PixelShaderTransforms.CreateOutputOnly``1(``0@,PaintDotNet.Rendering.RectInt32)">
+            <summary>
+            Creates a transform for a shader with no inputs. The output opaque sub-rect will be empty.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.Effects.PixelShaderTransforms.CreateOutputOnly``1(``0@,PaintDotNet.Rendering.RectInt32,PaintDotNet.Rendering.RectInt32)">
+            <summary>
+            Creates a transform for a shader with no inputs.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.PixelSwizzleEffect">
+            <summary>
+            Swizzles the pixels of an input. This can be used to change the order of channels, or to to duplicate
+            (broadcast) channels. For instance, to swap the red and green channels, set the Swizzle property to
+            <see cref="F:PaintDotNet.Direct2D1.Effects.PixelSwizzle.GRBA"/>. As another example, to broadcast the green channel to all output
+            channels, use <see cref="F:PaintDotNet.Direct2D1.Effects.PixelSwizzle.GGGG"/>.<br/>
+            <br/>
+            You may use either RGBA or XYZW notation for channel names. Using <see cref="F:PaintDotNet.Direct2D1.Effects.PixelSwizzle.RGBA"/> is
+            the same as <see cref="F:PaintDotNet.Direct2D1.Effects.PixelSwizzle.XYZW"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PixelSwizzleEffect.Props.Swizzle">
+            <summary>
+            Specifies the swizzling to be performed. The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.PixelSwizzle.RGBA"/>,
+            which effectively does no swizzling.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PixelSwizzleEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the input and output.<br/>
+            If set to <see cref="F:PaintDotNet.Direct2D1.Effects.PixelSwizzleAlphaMode.Premultiplied"/>, the input will be unpremultiplied, then swizzling
+            will be performed, and then the output will be premultiplied.<br/>
+            If set to <see cref="F:PaintDotNet.Direct2D1.Effects.PixelSwizzleAlphaMode.Straight"/>, the input will be swizzled without unpremultiplication
+            or premultiplication.<br/>
+            The effect may also skip the premultiplication/unpremultiplication steps if it is not necessary for the given
+            swizzle (such as when the alpha channel is not modified).
+            The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.PixelSwizzleAlphaMode.Premultiplied"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.PosterizeEffect2">
+            <summary>
+            Similar to <see cref="T:PaintDotNet.Direct2D1.Effects.PosterizeEffect"/>, but permits up to 256 value counts instead of 16, supports posterizing
+            the alpha channel, and can work on both straight and premultiplied inputs.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PosterizeEffect2.Props.RedValueCount">
+            <summary>
+            An integer value specifying how many evenly spaced steps to divide the red channel range of 0.0 to 1.0 into.
+            For example, a value of 4 generates a table with 4 steps, [0.0, 0.33, 0.67, 1.0]. The allowed range for this
+            property is 2 to 256. The default value is 4.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PosterizeEffect2.Props.RedDisable">
+            <summary>
+            If set to true, the red channel is not processed. The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PosterizeEffect2.Props.GreenValueCount">
+            <summary>
+            An integer value specifying how many evenly spaced steps to divide the green channel range of 0.0 to 1.0 into.
+            For example, a value of 4 generates a table with 4 steps, [0.0, 0.33, 0.67, 1.0]. The allowed range for this
+            property is 2 to 256. The default value is 4.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PosterizeEffect2.Props.GreenDisable">
+            <summary>
+            If set to true, the green channel is not processed. The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PosterizeEffect2.Props.BlueValueCount">
+            <summary>
+            An integer value specifying how many evenly spaced steps to divide the blue channel range of 0.0 to 1.0 into.
+            For example, a value of 4 generates a table with 4 steps, [0.0, 0.33, 0.67, 1.0]. The allowed range for this
+            property is 2 to 256. The default value is 4.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PosterizeEffect2.Props.BlueDisable">
+            <summary>
+            If set to true, the blue channel is not processed. The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PosterizeEffect2.Props.AlphaValueCount">
+            <summary>
+            An integer value specifying how many evenly spaced steps to divide the alpha channel range of 0.0 to 1.0 into.
+            For example, a value of 4 generates a table with 4 steps, [0.0, 0.33, 0.67, 1.0]. The allowed range for this
+            property is 2 to 256. The default value is 4.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PosterizeEffect2.Props.AlphaDisable">
+            <summary>
+            If set to true, the alpha channel is not processed. The default value is false.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PosterizeEffect2.Props.AlphaMode">
+            <summary>
+            Sets the alpha mode for the input and output. The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.PrecisionEffect">
+            <summary>
+            Adjusts the precision of an image. Use the <c>Precision</c> property to modify an image's precision.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.PremultiplyEffect2">
+            <summary>
+            This effect produces the same output as <see cref="T:PaintDotNet.Direct2D1.Effects.PremultiplyEffect"/>, but also has a property
+            to enable or disable premultiplication. This simplifies creating transform or effect graphs that
+            may or may not need to use premultiplication depending on their own configuration.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.PremultiplyEffect2.Props.Enabled">
+            <summary>
+            Enables or disables premultiplication. If this is set to true, then this effect uses the
+            <see cref="T:PaintDotNet.Direct2D1.Effects.PremultiplyEffect"/> to premultiply the input. Otherwise, this effect serves
+            as a passthrough node and does not change the input.<br/>
+            The default value is true.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.RandomNoiseEffect">
+            <summary>
+            This effect generates random noise.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.RandomNoiseEffect.Props.Seed">
+            <summary>
+            Specifies the random seed for the effect. If two instances of this effect have the
+            same value for their Seed property, they will generate the same output.<br/>
+            <br/>
+            The default value is 0. You can set this to <c>(uint)Random.Shared.Next()</c> to make sure
+            each instance of the effect has different output.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.RandomNoiseEffect.Props.MinValue">
+            <summary>
+            Specifies the minimum value for each color channel.<br/>
+            The default value is <c>{ 0, 0, 0, 0 }</c>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.RandomNoiseEffect.Props.MaxValue">
+            <summary>
+            Specifies the maximum value for each color channel.<br/>
+            The default value is <c>{ 1, 1, 1, 1 }</c>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.RandomNoiseEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the output.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.RandomNoiseAlphaMode.Premultiplied"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ReplaceChannelEffect">
+            <summary>
+            Replaces one channel of the input image with that of another image.<br/>
+            <br/>
+            <code>
+            color = Input[x,y];
+            color[Channel] = ChannelSource[x,y][Channel];
+            return color;
+            </code>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ReplaceChannelEffect.Props.ChannelSource">
+            <summary>
+            The image that contains the channel that will be replaced in the Input image.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ReplaceChannelEffect.Props.Channel">
+            <summary>
+            This selects which channel will be replaced in the Input image.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.ChannelSelector.A"/>, which replaces the alpha channel.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ReplaceChannelEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the inputs and the output.<br/>
+            If this value is <see cref="F:PaintDotNet.Direct2D1.Effects.ReplaceChannelAlphaMode.Premultiplied"/>, the inputs will be unpremultiplied, then the
+            channel replacement will be performed, and then the result will be premultiplied.<br/>
+            If this value is <see cref="F:PaintDotNet.Direct2D1.Effects.ReplaceChannelAlphaMode.Straight"/>, the channel replacement will be performed on the
+            input images without any further processing.<br/>
+            The effect may also skip the premultiplication/unpremultiplication steps if it is not necessary for the given
+            channel replacement (such as when the alpha channel is not being modified).<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.ReplaceChannelAlphaMode.Premultiplied"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ScenePositionEffect">
+            <summary>
+            An effect whose output at each location is the scene position. This can be useful for sample map
+            effects that take a sample map as input, and produce a sample map as an output. If this effect
+            is plugged into the SampleMapRenderer as the SampleMap input, the output will be the same as
+            the Input image.<br/>
+            <br/>
+            The scene position enumerates center-of-pixel offsets, such as <c>{ x = 0.5, y = 0.5 }</c>,
+            instead of whole-integer offsets, such as <c>{ x = 0, y = 0 }</c>. If you prefer to have
+            whole-integer offsets, pass the output of this effect to an <see cref="T:PaintDotNet.Direct2D1.Effects.HlslUnaryFunctionEffect"/>
+            with the <c>Function</c> property set to <see cref="F:PaintDotNet.Direct2D1.Effects.HlslUnaryFunction.Floor"/>.<br/>
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ScenePositionEffect.Props.Format">
+            <summary>
+            Specifies the format of the scene position values. See <see cref="T:PaintDotNet.Direct2D1.Effects.ScenePositionFormat"/> for more information.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.ScenePositionFormat.XY00"/>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ScenePositionFormat">
+            <summary>
+            Specifies the output format of the <see cref="T:PaintDotNet.Direct2D1.Effects.ScenePositionEffect"/>.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ScenePositionFormat.XY01">
+            <summary>
+            The scene position will be provided as { X, Y, 0, 1 }. This can be used as the input value for a sample
+            map effect or the SampleMapRenderer, in which case it is essentially the identity transform.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ScenePositionFormat.Raw">
+            <summary>
+            The scene position will be the exact value returned from <see cref="M:ComputeSharp.D2D1.D2D.GetScenePosition"/>.<br/>
+            See also <a href="https://docs.microsoft.com/en-us/windows/win32/direct2d/d2dgetsceneposition">D2DGetScenePosition function</a>.<br/>
+            The Z and W components contain values used for calculating texture offsets and can be useful
+            in very advanced scenarios for low-level pixel shaders.<br/>
+            These values may not be interpreted correctly if used in sample map effects, which expect values
+            in the form {X, Y, *, A}.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ScenePositionFormat.XY00">
+            <summary>
+            The scene position will be provided as { X, Y, 0, 0 }.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.SepiaEffect2">
+            <summary>
+            Similar to <see cref="T:PaintDotNet.Direct2D1.Effects.SepiaEffect"/>, but matches Paint.NET's original Sepia effect.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.SepiaEffect2.Props.Intensity">
+            <summary>
+            The intensity of the effect. The range is [0, 1] and the default is 0.5.<br/>
+            If 0.5 is used, this effect produces the same output as the original, parameterless Paint.NET Sepia effect.<br/>
+            If 0 is used, this effect produces the same output as <see cref="T:PaintDotNet.Direct2D1.Effects.GrayscaleEffect2"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.SepiaEffect2.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode of the input and output. The default is Premultiplied.<br/>
+            To preserve color information for transparent pixels, make sure the input is in
+            straight alpha format (not premultiplied) and set this property to Straight.<br/>
+            The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.SepiaEffect2.Props.InputGamma">
+            <summary>
+            Indicates the gamma of the input image, and for the output. If the input image is known to be linear, then the
+            <see cref="F:PaintDotNet.Direct2D1.Effects.SepiaInputGamma2.Linear"/> value should be used so that the correct calculations are used.<br/>
+            The default value is <see cref="F:PaintDotNet.Direct2D1.Effects.SepiaInputGamma2.Srgb"/>.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.SepiaInputGamma2.Linear">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.HighlightsAndShadowsInputGamma.Linear"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.SepiaInputGamma2.Srgb">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.HighlightsAndShadowsInputGamma.Srgb"/>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.ShadowEffect2">
+            <summary>
+            Provides the same functionality as <see cref="T:PaintDotNet.Direct2D1.Effects.ShadowEffect"/>, but adds a <see cref="F:PaintDotNet.Direct2D1.Effects.ShadowOptimization2.HighQuality"/>
+            mode that does not apply any optimizations that reduce image quality. When using the <see cref="F:PaintDotNet.Direct2D1.Effects.ShadowOptimization2.HighQuality"/>
+            mode, rendering quality is greatly improved for certain types of images, but performance is
+            also greatly reduced.<br/>
+            <br/>
+            <b>NOTE:</b> The maximum value for the BlurStandardDeviation property is much lower than for <see cref="T:PaintDotNet.Direct2D1.Effects.ShadowEffect"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ShadowEffect2.Props.BlurStandardDeviation">
+            <summary>
+            The amount of blur to be applied to the alpha channel of the image. You can compute the blur radius of the
+            kernel by multiplying the standard deviation by 3. You can compute the standard deviation
+            by dividing the blur radius by 3. The units of both the standard deviation and blur radius
+            are DIPs. A value of zero disables this effect entirely.<br/>
+            You can use the <see cref="T:PaintDotNet.Direct2D1.Effects.StandardDeviation"/> class to simplify conversion between
+            standard deviation and radius.<br/>
+            The range of this value is [0, 100], which corresponds to a blur radius of [0, 300].<br/>
+            The default value is 3.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ShadowEffect2.Props.Color">
+            <summary>
+            The color of the drop shadow. You must specify this color in straight alpha (not premultiplied).
+            The default value is { 0, 0, 0, 1 } (opaque black).
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ShadowEffect2.Props.Optimization">
+            <summary>
+            The level of performance optimization. The default value is ShadowOptimization2.HighQuality.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.ShadowEffect2.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the output. Because this effect operates only on the input's alpha channel,
+            it does not matter if the input is in straight or premultiplied alpha format.<br/>
+            The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ShadowOptimization2.Speed">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.GaussianBlurOptimization2.Speed"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ShadowOptimization2.Balanced">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.GaussianBlurOptimization2.Balanced"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ShadowOptimization2.Quality">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.GaussianBlurOptimization2.Quality"/>
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Direct2D1.Effects.ShadowOptimization2.HighQuality">
+            <summary>
+            <inheritdoc cref="F:PaintDotNet.Direct2D1.Effects.GaussianBlurOptimization2.HighQuality"/>
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.SrgbToLinearEffect">
+            <summary>
+            Converts an image from companded sRGB (gamma ~2.2) to linear scRGB (gamma 1.0).
+            </summary>
+            <remarks>
+            This effect is the inverse of <see cref="T:PaintDotNet.Direct2D1.Effects.LinearToSrgbEffect"/>.<br/>
+            <br/>
+            This is a helper effect that is the same as using the <see cref="T:PaintDotNet.Direct2D1.Effects.ColorManagementEffect"/> with the
+            SourceColorContext initialized to <see cref="F:PaintDotNet.Direct2D1.ColorSpace.Srgb"/> and the DestinationColorContext
+            set to <see cref="F:PaintDotNet.Direct2D1.ColorSpace.ScRgb"/>.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.SrgbToLinearEffect.Props.AlphaMode">
+            <summary>
+            Specifies the alpha mode for the input and the output. The default value is Premultiplied.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.SrgbToLinearEffect.Props.Enabled">
+            <summary>
+            Enables or disables the effect. The default value is true.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.UnPremultiplyEffect2">
+            <summary>
+            This effect produces the same output as <see cref="T:PaintDotNet.Direct2D1.Effects.UnPremultiplyEffect"/>, but also has a property
+            to enable or disable unpremultiplication. This simplifies creating transform or effect graphs that
+            may or may not need to use unpremultiplication depending on their own configuration.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.UnPremultiplyEffect2.Props.Enabled">
+            <summary>
+            Enables or disables unpremultiplication. If this is set to true, then this effect uses the
+            <see cref="T:PaintDotNet.Direct2D1.Effects.UnPremultiplyEffect"/> to unpremultiply the input. Otherwise, this effect serves
+            as a passthrough node and does not change the input.<br/>
+            The default value is true.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.Effects.WeightedAverageEffect">
+            <summary>
+            Combines multiple images by calculating their weighted average. This is an order-independent
+            form of blending.<br/>
+            <br/>
+            Each input is first multiplied by its corresponding weight. Then, all of these are summed
+            together. Finally, the output is the summation of the weighted inputs divided by the summation
+            of the weights.
+            <br/>
+            <c>output[x,y] = sum(inputs[0] * weights[0] + ... + inputs[n-1] * weights[n-1]) / sum(weights)</c>
+            <br/>
+            The use of premultiplied alpha images is recommended for correct alpha handling.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.Effects.WeightedAverageEffect.Props.Weights">
+            <summary>
+            Specifies the weights for each input image. If the number of values in the list is less than the
+            number of inputs, then the list is extended with <c>{1, 1, 1, 1}</c> weights.<br/>
+            <br/>
+            Weights are specified on per-component basis.
+            <br/>
+            The default value is an empty list, which means that the weight value for each input is <c>{1, 1, 1, 1}</c>.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.IDeviceImageFormatInfo">
+            <summary>
+            Provides color and format metadata for an <see cref="T:PaintDotNet.Direct2D1.IDeviceImage"/>.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.IDeviceImageFormatInfo.AlphaMode">
+            <summary>
+            Gets the alpha mode of the image.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.IDeviceImageFormatInfo.ColorContext">
+            <summary>
+            Gets the color context information associated with the image, if any.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.IDynamicEffect">
+            <summary>
+            A dynamic effect is an <see cref="T:PaintDotNet.Direct2D1.IDynamicImage"/> that provides metadata properties for
+            DisplayName, Author, Category, and Description.
+            </summary>
+            <remarks>
+            The difference between an <see cref="T:PaintDotNet.Direct2D1.IDynamicImage"/> and an <see cref="T:PaintDotNet.Direct2D1.IDynamicEffect"/> is
+            intention, not functionality. <see cref="T:PaintDotNet.Direct2D1.IDynamicEffect"/>s are intended as public APIs
+            that can be gathered using reflection and displayed in a UI, such as a node/graph editor,
+            alongside regular <see cref="T:PaintDotNet.Direct2D1.IDeviceEffect"/>s. If an <see cref="T:PaintDotNet.Direct2D1.IDynamicImage"/> is not an
+            <see cref="T:PaintDotNet.Direct2D1.IDynamicEffect"/>, then it should not be considered an "effect" that can be
+            surfaced in a UI that works with effects (such as a node/graph editor).<br/>
+            <br/>
+            The effect properties are intended to be presented to the user and should not be relied
+            upon to have any specific text or pattern. They may be changed at any time, and may be
+            localized (translated).<br/>
+            <br/>
+            <inheritdoc />
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Direct2D1.IDynamicImage">
+            <summary>
+            A dynamic image is a <see cref="T:PaintDotNet.Direct2D1.IDeviceImage"/> that is similar to an effect (<see cref="T:PaintDotNet.Direct2D1.IDeviceEffect"/>),
+            but typically uses rendering techniques that are either not possible or performance-prohibitive within
+            the context of an effect implementation.
+            </summary>
+            <remarks>
+            <b>NOTE:</b> Due to limitations in the Direct2D effects and rendering systems, inputs to dynamic
+            images that are also used in effect graphs may need to be wrapped in an <see cref="T:PaintDotNet.Direct2D1.ICommandList"/>
+            when used outside of the dynamic image. You can use the <see cref="M:PaintDotNet.Direct2D1.DeviceContextExtensions.CreateBufferedImage(PaintDotNet.Direct2D1.IDeviceContext,PaintDotNet.Direct2D1.IDeviceImage)"/>
+            extension method for this. See that method for more details.<br/>
+            <br/>
+            <b>NOTE:</b> Dynamic images usually require the device context's target to be using a buffer precision of
+            <see cref="F:PaintDotNet.Direct2D1.BufferPrecision.Float32"/> for correct rendering.<br/>
+            If your target is lower precision, use <see cref="M:PaintDotNet.Direct2D1.IDeviceContext.CreateCompatibleDeviceContext(System.Nullable{PaintDotNet.Rendering.SizeFloat},System.Nullable{PaintDotNet.Rendering.SizeInt32},System.Nullable{PaintDotNet.Direct2D1.DevicePixelFormat},PaintDotNet.Direct2D1.CompatibleDeviceContextOptions)"/> to
+            create an off-screen buffer to render the dynamic image into, and then draw the compatible device context's
+            bitmap to the final render target (device context).
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.IDynamicImage.GetOutput">
+            <summary>
+            Gets the underlying image or effect graph.
+            </summary>
+            <remarks>
+            You do not need to call this method again if you change the <see cref="T:PaintDotNet.Direct2D1.IDynamicImage"/>'s inputs or
+            properties.<br/>
+            <br/>
+            <b>NOTE:</b> This method does not need to be used in order to draw the dynamic image. It is only necessary
+            when inspecting the underlying image or effect graph, in which case you should also call <see cref="M:PaintDotNet.Direct2D1.IDynamicImage.UpdateOutput"/>
+            before beginning that inspection.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Direct2D1.IDynamicImage.UpdateOutput">
+            <summary>
+            Ensures that the underlying image or effect graph has been updated for the latest property changes, as
+            well as for any layout changes to the inputs.
+            </summary>
+            <remarks>
+            <b>NOTE:</b> This method does not need to be used before drawing the dynamic image. It is only necessary
+            when inspecting the underlying image or effect graph (via <see cref="M:PaintDotNet.Direct2D1.IDynamicImage.GetOutput"/> before drawing it,
+            either after creating the dynamic image or after changing its inputs or properties.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.IDynamicImagePropertyInfo.Name">
+            <summary>
+            The name of the property.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.IDynamicImagePropertyInfo.PropertyType">
+            <summary>
+            Gets the type of property.<br/>
+            If this is <see cref="F:PaintDotNet.Direct2D1.DynamicImagePropertyType.Object"/>, this instance should be cast to
+            <see cref="T:PaintDotNet.Direct2D1.IDynamicImageObjectPropertyInfo"/> to retrieve additional property information.<br/>
+            If this is <see cref="F:PaintDotNet.Direct2D1.DynamicImagePropertyType.Value"/>, this instance should be cast to
+            <see cref="T:PaintDotNet.Direct2D1.IDynamicImageValuePropertyInfo"/> to retrieve additional property information.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.IDynamicImagePropertyInfo.ValueType">
+            <summary>
+            The type of the property value.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.IDynamicImageValuePropertyInfo.ValueSize">
+            <summary>
+            Gets the size, in bytes, of the value.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.IDynamicImageValuePropertyInfo.DefaultValue">
+            <summary>
+            Gets the default value.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.IDynamicImageValuePropertyInfo.MinValue">
+            <summary>
+            Gets the minimum value. If the property does not specify a minimum value,
+            the span will be empty.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Direct2D1.IDynamicImageValuePropertyInfo.MaxValue">
+            <summary>
+            Gets the maximum value. If the property does not specify a maximum value,
+            the span will be empty.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Gdi.GdiControl">
+            <summary>
+            A control that does its painting in WM_PAINT via GDI calls, completely bypassing System.Drawing (GDI+)
+            and WinForm's built-in painting mechanisms. You will need to implement your own interop definitions to
+            paint using GDI. Use of the TerraFX.Interop.Windows nuget package is highly recommended.<br/>
+            <br/>
+            The <see cref="T:PaintDotNet.Gdi.IGdiPaintContext"/> passed to <see cref="M:PaintDotNet.Gdi.GdiControl.OnGdiPaint(PaintDotNet.Gdi.IGdiPaintContext)"/>
+            implements the <see cref="T:System.Drawing.IDeviceContext"/> interface, which is accepted by some rendering
+            code in the System.Windows.Forms namespaces, such as <see cref="T:System.Windows.Forms.ButtonRenderer"/>,
+            <see cref="T:System.Windows.Forms.TextRenderer"/>, and <see cref="T:System.Windows.Forms.VisualStyles.VisualStyleRenderer"/>.<br/>
+            <br/>
+            This class primarily exists to serve as the base class for Direct2DControl.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Gdi.GdiControl.CheckAccess">
+            <summary>
+            Checks whether the calling thread has access to this control. This means that the calling thread
+            is the same thread that created this control.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Gdi.GdiControl.VerifyAccess">
+            <summary>
+            Enforces that the calling thread has access to this control. This means that the calling thread
+            is the same thread that created this control.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Gdi.GdiControl.DoubleBufferedGdiPaint">
+            <summary>
+            Gets or sets whether painting in <see cref="M:PaintDotNet.Gdi.GdiControl.OnGdiPaint(PaintDotNet.Gdi.IGdiPaintContext)"/> is double-buffered.<br/>
+            <br/>
+            Double-buffering is implemented using the <a href="https://docs.microsoft.com/en-us/windows/win32/api/uxtheme/nf-uxtheme-beginbufferedpaint">BeginBufferedPaint()</a>
+            and <a href="https://docs.microsoft.com/en-us/windows/win32/api/uxtheme/nf-uxtheme-endbufferedpaint">EndBufferedPaint()</a> APIs.<br/>
+            <br/>
+            <b>NOTE:</b> <see cref="P:System.Windows.Forms.Control.DoubleBuffered"/> has no effect for this class.<br/>
+            <br/>
+            The default value is false.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Gdi.GdiControlImpl.RelayWndProc(System.Windows.Forms.Message@)">
+            <summary>
+            Handles window messages.
+            </summary>
+            <returns>false if the caller should go ahead and handle the message. true if it has already been handled.</returns>
+        </member>
+        <member name="M:PaintDotNet.Imaging.BitmapExtensions.CreatePremultipliedAdapter(PaintDotNet.Imaging.IBitmap{PaintDotNet.Imaging.ColorBgra32},PaintDotNet.Imaging.PremultipliedAdapterOptions)">
+            <summary>
+            Creates an adapter that reinterprets a bitmap in a straight alpha pixel format over to a
+            premultiplied alpha pixel format, such as from <see cref="T:PaintDotNet.Imaging.ColorBgra32"/> to <see cref="T:PaintDotNet.Imaging.ColorPbgra32"/>.<br/>
+            The adapter can then be used for Direct2D rendering, such as with
+            <see cref="M:PaintDotNet.Direct2D1.IDirect2DFactory.CreateBitmapDeviceContext(PaintDotNet.Imaging.IBitmap,PaintDotNet.Direct2D1.DeviceContextProperties@)"/>.<br/>
+            A copy is not made; the adapter references the same memory as the original bitmap.<br/>
+            Optionally supports conversion to premultiplied alpha on creation, and conversion back to
+            straight alpha on disposal.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Imaging.PremultipliedAdapterOptions.None">
+            <summary>
+            Reinterprets the bitmap in the new pixel format. The same memory is referenced by both the original
+            bitmap and the adapter; a copy is not made. This is useful for adapting an <see cref="T:PaintDotNet.Imaging.IBitmap`1"/>
+            from <see cref="T:PaintDotNet.Imaging.ColorBgra32"/> to <see cref="T:PaintDotNet.Imaging.ColorPbgra32"/> for rendering with Direct2D.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Imaging.PremultipliedAdapterOptions.PremultiplyOnCreate">
+            <summary>
+            The contents of the bitmap are converted to premultiplied alpha at the time the adapter is created.
+            Using this option enables the correct rendering of Direct2D content on top of non-Direct2D content.
+            This option is not necessary if the bitmap is blank (filled with transparent black, or is
+            completely opaque).
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Imaging.PremultipliedAdapterOptions.UnPremultiplyOnDispose">
+            <summary>
+            The contents of the bitmap are converted to straight alpha when the adapter is disposed.
+            If the bitmap is not disposed, and left for the garbage collector to clean up, then conversion
+            is not performed.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Input.IPointerInputEventArgs.GetPointsHistory">
+            <summary>
+            Gets a list of the points that were coalesced into this event.
+            </summary>
+            <remarks>
+            The list is in chronological order, and the last point will always be equal to the value returned from the Point property.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Input.IRawPointerDeviceChangeEventSource.ProcessMessage(PaintDotNet.Interop.Win32Message@)">
+            <summary>
+            Processes a window message.
+            </summary>
+            <returns>true if the message was processed, else false.</returns>
+        </member>
+        <member name="M:PaintDotNet.Input.IRawPointerEventSink.OnRawPointerDeviceChange(PaintDotNet.Input.IInputEventArgs)">
+            <summary>
+            Sent to a window when there is a change in the settings of a monitor that has a digitizer attached to it.
+            <a href="https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerdevicechange">https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerdevicechange</a>
+            </summary>
+            <remarks>
+            This is sent when either a WM_POINTERDEVICECHANGE or WM_DISPLAYCHANGE message is received.
+            <a href="https://docs.microsoft.com/en-us/windows/win32/gdi/wm-displaychange">https://docs.microsoft.com/en-us/windows/win32/gdi/wm-displaychange</a>
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Input.IRawPointerEventSink.OnRawPointerActivate(PaintDotNet.Input.IRawPointerActivateEventArgs)">
+            <summary>
+            Sent to an inactive window when a primary pointer generates a pointer down event over the window.
+            <a href="https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointeractivate">https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointeractivate</a>
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Input.IRawPointerEventSink.OnRawPointerCaptureChanged(PaintDotNet.Input.IRawPointerCaptureChangedEventArgs)">
+            <summary>
+            Receives capture change information.
+            <a href="https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointercapturechanged">https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointercapturechanged</a>
+            </summary>
+            <remarks>
+            If e.PointerType == PointerType.Pen, then e will also implement IRawPointerPenInfoEventArgs.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Input.IRawPointerEventSink.OnRawPointerEnter(PaintDotNet.Input.IRawPointerInfoEventArgs)">
+            <summary>
+            Receives a notification that the pointer has entered detection range.
+            <a href="https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerenter">https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerenter</a>
+            </summary>
+            <remarks>
+            If e.PointerType == PointerType.Pen, then e will also implement IRawPointerPenInfoEventArgs.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Input.IRawPointerEventSink.OnRawPointerDown(PaintDotNet.Input.IRawPointerInputEventArgs)">
+            <summary>
+            Receives information about the given pointer when it contacts or is pressed down on the input surface.
+            <a href="https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerdown">https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerdown</a>
+            </summary>
+            <remarks>
+            If e.PointerType == PointerType.Pen, then e will also implement IRawPointerPenInputEventArgs.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Input.IRawPointerEventSink.OnRawPointerUpdate(PaintDotNet.Input.IRawPointerInputEventArgs)">
+            <summary>
+            Receives updated information about the given pointer based on its movement.
+            <a href="https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerupdate">https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerupdate</a>
+            </summary>
+            <remarks>
+            If e.PointerType == PointerType.Pen, then e will also implement IRawPointerPenInputEventArgs.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Input.IRawPointerEventSink.OnRawPointerUp(PaintDotNet.Input.IRawPointerInputEventArgs)">
+            <summary>
+            Receives information about the pointer when it is released from the input surface.
+            <a href="https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerup">https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerup</a>
+            </summary>
+            <remarks>
+            If e.PointerType == PointerType.Pen, then e will also implement IRawPointerPenInputEventArgs.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Input.IRawPointerEventSink.OnRawPointerLeave(PaintDotNet.Input.IRawPointerInfoEventArgs)">
+            <summary>
+            Receives a notification that the pointer has left detection range.
+            <a href="https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerleave">https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerleave</a>
+            </summary>
+            <remarks>
+            If e.PointerType == PointerType.Pen, then e will also implement IRawPointerPenInfoEventArgs.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Input.IRawPointerEventSink.OnRawPointerWheel(PaintDotNet.Input.IRawPointerWheelEventArgs)">
+            <summary>
+            Receives information about a pointer's wheel movement.
+            <a href="https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerwheel">https://docs.microsoft.com/en-us/windows/win32/inputmsg/wm-pointerwheel</a>
+            </summary>
+            <remarks>
+            If e.PointerType == PointerType.Pen, then e will also implement IRawPointerPenInfoEventArgs.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Input.IRawPointerInputEventArgs.PointerInfoHistory">
+            <summary>
+            Gets a list of the pointer infos that were coalesced into this event.
+            </summary>
+            <remarks>
+            The list is in reverse chronological order, and the first element will always be equal to the
+            value returned from the PointerInfo property.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Input.IRawPointerPenInputEventArgs.PointerPenInfoHistory">
+            <summary>
+            Gets a list of the pointer pen infos that were coalesced into this event.
+            </summary>
+            <remarks>
+            The list is in reverse chronological order, and the first element will always be equal to the
+            value returned from the PointerPenInfo property.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Input.PointerEventMultiplexer">
+            <summary>
+            Aggregates pointer events from multiple senders. Makes sure that only one of them is sending
+            PointerPressed/Moved/Released sequences. Receiving a PointerPressed event locks the output to
+            that sender and PointerReleased unlocks it.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Input.PointerInputProcessor">
+            <summary>
+            Processes raw pointer input messages and translates them to regular pointer input events.
+            Also process mouse events and translates them into pointer input events.
+            Coordinates sent to the IPointerEventSink are translated from screen space using its
+            implementation of IPointerPointTransform.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Input.PointerPoint.Position">
+            <summary>
+            Gets the position of the input event in local coordinates.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Input.PointerPoint.ScreenPosition">
+            <summary>
+            Gets the position of the input event in screen coordinates.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Input.PointerPoint.Buttons">
+            <summary>
+            Gets which buttons are in the pressed state.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Input.PointerPoint.ButtonChangeType">
+            <summary>
+            Gets a flag indicating which button changed (if any), and what its new state is.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Input.PointerPoint.Pressure">
+            <summary>
+            Gets the pressure value for this input event. For pointers that do not support pressure,
+            this value will always be PointerPressure.Default. The range of this value is [0.0f, 1.0f].
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Input.PointerPoint.From(PaintDotNet.Input.RawPointerInfo@,System.Nullable{PaintDotNet.Rendering.Matrix3x2Double}@,PaintDotNet.Input.IPointerPointTransform)">
+            <summary>
+            Creates a PointerPoint with the data from a RawPointerInfo.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Input.PointerPoint.From(PaintDotNet.Input.RawPointerPenInfo@,System.Nullable{PaintDotNet.Rendering.Matrix3x2Double}@,PaintDotNet.Input.IPointerPointTransform)">
+            <summary>
+            Creates a PointerPoint with the data from a RawPointerInfo.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Input.PointerPointFlags.None">
+            <summary>
+            No special flags.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Input.PointerPointFlags.Pressure">
+            <summary>
+            The pressure value is real. If this flag is not set then the pressure value will be PointerPressure.Default. 
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Input.PointerPressure.Default">
+            <summary>
+            This is the pressure value that is reported for devices that do not report pressure.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Input.ProcessMessageResult.Unprocessed">
+            <summary>
+            The message was not processed. It should be passed to the original window procedure.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Input.ProcessMessageResult.ProcessedButUnhandled">
+            <summary>
+            The message was a pointer message, but was not handled. It should be passed to the original window procedure.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Input.ProcessMessageResult.ProcessedAndHandled">
+            <summary>
+            The message was a pointer message and it was handled. It should not be passed to the original window procedure.
+            </summary>
+            <remarks>
+            Processed pointer messages prevent the synthesis of WM_SETCURSOR messages, which will cause the cursor to be
+            incorrect. A WM_SETCURSOR message should therefore be sent to the original window procedure after this result
+            is returned from the message processor.
+            </remarks>
+        </member>
+        <member name="P:PaintDotNet.Input.RawPointerInputEventArgs.PointerInfoHistory">
+            <summary>
+            Gets the list of historical RawPointerInfo data that was coalesced into this event.
+            </summary>
+            <remarks>
+            The list is in reverse chronological order, and the first point will always be equal to the PointerInfo property's value.
+            </remarks>
+        </member>
+        <member name="T:PaintDotNet.Input.RawPointerMessageProcessor">
+            <summary>
+            Handles WM_POINTER messages and routes the data to an event sink. Note that the event data
+            is fairly 'raw' and will likely need further processing at the application level.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Input.RawPointerMessageProcessor.ProcessMessage(PaintDotNet.Interop.Win32Message@)">
+            <summary>
+            Called by the host to process messages from WndProc.
+            </summary>
+            <returns>true if the message was processed and the caller should return immediately. false if the message was not processed.</returns>
+        </member>
+        <member name="T:PaintDotNet.Interop.CustomCursor">
+            <summary>
+            Holds a Win32 HCURSOR and a WinForms Cursor that wraps it. This class is necessary
+            because WinForms' Cursor doesn't allow for taking ownership of the HCURSOR, and we
+            don't want to leak it.
+            </summary>
+        </member>
+        <member name="T:PaintDotNet.Rendering.BezierSplineUtil">
+            <summary>
+            Bezier Spline methods
+            </summary>
+            <remarks>
+            Modified: Peter Lee (peterlee.com.cn _at_ gmail.com)
+              Update: 2009-03-16
+            
+            see also:
+            Draw a smooth curve through a set of 2D points with Bezier primitives
+            http://www.codeproject.com/KB/graphics/BezierSpline.aspx
+            By Oleg V. Polikarpotchkin
+            
+            Algorithm Descripition:
+            
+            To make a sequence of individual Bezier curves to be a spline, we
+            should calculate Bezier control points so that the spline curve
+            has two continuous derivatives at knot points.
+            
+            Note: `[]` denotes subscript
+                   `^` denotes supscript
+                   `'` denotes first derivative
+                  `''` denotes second derivative
+                  
+            A Bezier curve on a single interval can be expressed as:
+            
+            B(t) = (1-t)^3 P0 + 3(1-t)^2 t P1 + 3(1-t)t^2 P2 + t^3 P3          (*)
+            
+            where t is in [0,1], and
+                1. P0 - first knot point
+                2. P1 - first control point (close to P0)
+                3. P2 - second control point (close to P3)
+                4. P3 - second knot point
+                
+            The first derivative of (*) is:
+            
+            B'(t) = -3(1-t)^2 P0 + 3(3t^2–4t+1) P1 + 3(2–3t)t P2 + 3t^2 P3
+            
+            The second derivative of (*) is:
+            
+            B''(t) = 6(1-t) P0 + 6(3t-2) P1 + 6(1–3t) P2 + 6t P3
+            
+            Considering a set of piecewise Bezier curves with n+1 points
+            (Q[0..n]) and n subintervals, the (i-1)-th curve should connect
+            to the i-th one:
+            
+            Q[0] = P0[1],
+            Q[1] = P0[2] = P3[1], ... , Q[i-1] = P0[i] = P3[i-1]  (i = 1..n)   (@)
+            
+            At the i-th subinterval, the Bezier curve is:
+            
+            B[i](t) = (1-t)^3 P0[i] + 3(1-t)^2 t P1[i] + 
+                      3(1-t)t^2 P2[i] + t^3 P3[i]                 (i = 1..n)
+            
+            applying (@):
+            
+            B[i](t) = (1-t)^3 Q[i-1] + 3(1-t)^2 t P1[i] + 
+                      3(1-t)t^2 P2[i] + t^3 Q[i]                  (i = 1..n)   (i)
+                      
+            From (i), the first derivative at the i-th subinterval is:
+            
+            B'[i](t) = -3(1-t)^2 Q[i-1] + 3(3t^2–4t+1) P1[i] +
+                       3(2–3t)t P2[i] + 3t^2 Q[i]                 (i = 1..n)
+            
+            Using the first derivative continuity condition:
+            
+            B'[i-1](1) = B'[i](0)
+            
+            we get:
+            
+            P1[i] + P2[i-1] = 2Q[i-1]                             (i = 2..n)   (1)
+            
+            From (i), the second derivative at the i-th subinterval is:
+            
+            B''[i](t) = 6(1-t) Q[i-1] + 6(3t-2) P1[i] +
+                        6(1-3t) P2[i] + 6t Q[i]                   (i = 1..n)
+            
+            Using the second derivative continuity condition:
+            
+            B''[i-1](1) = B''[i](0)
+            
+            we get:
+            
+            P1[i-1] + 2P1[i] = P2[i] + 2P2[i-1]                   (i = 2..n)   (2)
+            
+            Then, using the so-called "natural conditions":
+            
+            B''[1](0) = 0
+            
+            B''[n](1) = 0
+            
+            to the second derivative equations, and we get:
+            
+            2P1[1] - P2[1] = Q[0]                                              (3)
+            
+            2P2[n] - P1[n] = Q[n]                                              (4)
+            
+            From (1)(2)(3)(4), we have 2n conditions for n first control points
+            P1[1..n], and n second control points P2[1..n].
+            
+            Eliminating P2[1..n], we get (be patient to get :-) a set of n
+            equations for solving P1[1..n]:
+            
+              2P1[1]   +  P1[2]   +            = Q[0] + 2Q[1]
+               P1[1]   + 4P1[2]   +    P1[3]   = 4Q[1] + 2Q[2]
+             ...
+               P1[i-1] + 4P1[i]   +    P1[i+1] = 4Q[i-1] + 2Q[i]
+             ...
+               P1[n-2] + 4P1[n-1] +    P1[n]   = 4Q[n-2] + 2Q[n-1]
+                          P1[n-1] + 3.5P1[n]   = (8Q[n-1] + Q[n]) / 2
+             
+            From this set of equations, P1[1..n] are easy but tedious to solve.
+            </remarks>
+        </member>
+        <member name="M:PaintDotNet.Rendering.BezierSplineUtil.GetBeziersForSpline(System.ReadOnlySpan{PaintDotNet.Rendering.Point2Double})">
+            <summary>
+            Get open-ended Bezier Spline Control Points.
+            </summary>
+            <param name="knots">Input Knot Bezier spline points.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="knots"/> parameter must be not null.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="knots"/> array must containg at least two points.</exception>
+        </member>
+        <member name="M:PaintDotNet.Rendering.BezierSplineUtil.GetFirstControlPoints(System.ReadOnlySpan{System.Double},System.Span{System.Double},System.Span{System.Double})">
+            <summary>
+            Solves a tridiagonal system for one of coordinates (x or y) of first Bezier control points.
+            </summary>
+            <param name="rhs">Right hand side vector.</param>
+            <param name="buffer">Temporary buffer. Must be same length as rhs.</param>
+            <param name="solution">Output buffer. Must be the same length at rhs.</param>
+        </member>
+        <member name="T:PaintDotNet.Threading.WaitHandleArray">
+            <summary>
+            Encapsulates an array of WaitHandles and methods for waiting on them.
+            This class does not take ownership of the WaitHandles; you must still
+            Dispose() them yourself.
+            </summary>
+            <remarks>
+            This class exists because System.Threading.WaitHandle.Wait[Any|All] will throw an exception
+            in an STA apartment. So we must P/Invoke down to WaitForMultipleObjects().
+            </remarks>
+        </member>
+        <member name="F:PaintDotNet.Threading.WaitHandleArray.MinimumCount">
+            <summary>
+            The minimum value that may be passed to the constructor for initialization.
+            </summary>
+        </member>
+        <member name="F:PaintDotNet.Threading.WaitHandleArray.MaximumCount">
+            <summary>
+            The maximum value that may be passed to the construct for initialization.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Threading.WaitHandleArray.Item(System.Int32)">
+            <summary>
+            Gets or sets the WaitHandle at the specified index.
+            </summary>
+        </member>
+        <member name="P:PaintDotNet.Threading.WaitHandleArray.Length">
+            <summary>
+            Gets the length of the array.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Threading.WaitHandleArray.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the WaitHandleArray class.
+            </summary>
+            <param name="count">The size of the array.</param>
+        </member>
+        <member name="M:PaintDotNet.Threading.WaitHandleArray.WaitAll">
+            <summary>
+            Waits for all of the WaitHandles to be signaled.
+            </summary>
+        </member>
+        <member name="M:PaintDotNet.Threading.WaitHandleArray.WaitAny">
+            <summary>
+            Waits for any of the WaitHandles to be signaled.
+            </summary>
+            <returns>
+            The index of the first item in the array that completed the wait operation.
+            If this value is outside the bounds of the array, it is an indication of an
+            error.
+            </returns>
+        </member>
+    </members>
+</doc>
